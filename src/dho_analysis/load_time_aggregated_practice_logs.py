@@ -6,11 +6,11 @@ from dho_analysis.utils import read_dho_messages
 
 
 def main():
-    df = aggregate_time()
+    df = load_time_aggregated_practice_logs()
     print(df)
 
 
-def aggregate_time(days: int = 1) -> DataFrame:
+def load_time_aggregated_practice_logs(days: int = 1) -> DataFrame:
     return read_dho_messages().filter(
         pl.col("category").eq("PracticeLogs"),
         pl.col("author").eq("Linda ”Polly Ester” Ö")

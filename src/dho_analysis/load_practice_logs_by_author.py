@@ -4,11 +4,11 @@ from dho_analysis.utils import read_dho_messages
 
 
 def main():
-    df = calc_num_practice_logs_per_author()
+    df = load_num_practice_logs_per_author()
     print(df)
 
 
-def calc_num_practice_logs_per_author():
+def load_num_practice_logs_per_author():
     return read_dho_messages().filter(
         pl.col("category").eq("PracticeLogs")
     ).group_by(

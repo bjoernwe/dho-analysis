@@ -1,12 +1,12 @@
 from polars import DataFrame, Series
 from sentence_transformers import SentenceTransformer
 
-from dho_analysis.time_aggregates import aggregate_time
+from dho_analysis.load_time_aggregated_practice_logs import load_time_aggregated_practice_logs
 from dho_analysis.utils import project_path
 
 
 def main():
-    df = aggregate_time()
+    df = load_time_aggregated_practice_logs()
     df = calc_message_embeddings(df)
     print(df)
 

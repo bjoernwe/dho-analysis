@@ -15,14 +15,16 @@ def main():
     print(df)
 
 
-def add_message_embeddings(df: DataFrame, model: str = "all-MiniLM-L6-v2") -> DataFrame:
+def add_message_embeddings(df: DataFrame, model: str = "all-MiniLM-L6-v2", normalize: bool = False) -> DataFrame:
     """
     Models:
     - all-MiniLM-L6-v2
+    - all-mpnet-base-v2
+    - msmarco-MiniLM-L6-cos-v5
     - AnnaWegmann/Style-Embedding
     """
     sentences = tuple(df.get_column("msg").to_list())
-    embeddings = _calc_embeddings(sentences, model=model, normalize=True)
+    embeddings = _calc_embeddings(sentences, model=model, normalize=normalize)
     return df.with_columns(
         Series(embeddings).alias("embedding")
     )

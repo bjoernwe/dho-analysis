@@ -6,10 +6,12 @@ from joblib import Memory
 from polars import DataFrame
 
 
-project_path: Path = Path(__file__).parent.parent.parent
-cache_dir: str = str(project_path.joinpath(".cache"))
+SEED = 0
 
-memory = Memory(location=cache_dir)
+PROJECT_PATH: Path = Path(__file__).parent.parent.parent
+CACHE_DIR: str = str(PROJECT_PATH.joinpath(".cache"))
+
+memory = Memory(location=CACHE_DIR)
 
 
 def read_dho_messages() -> DataFrame:

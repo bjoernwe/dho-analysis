@@ -18,7 +18,7 @@ def plot_slowness_for_different_time_scales():
 
 
 def _calc_slowness_for_time_aggregate(time_aggregate: str = "1d"):
-    df = load_time_aggregated_practice_logs(time_aggregate=time_aggregate)
+    df = load_time_aggregated_practice_logs(time_aggregate=time_aggregate, author="Linda ”Polly Ester” Ö")
     df = add_message_embeddings(df)
     embeddings = df.get_column("embedding")
     return calc_slowness(embeddings)

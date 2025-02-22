@@ -10,13 +10,13 @@ def main():
     print(df)
 
 
-def load_time_aggregated_practice_logs(days: int = 1) -> DataFrame:
+def load_time_aggregated_practice_logs(time_aggregate: str = "1d") -> DataFrame:
     return read_dho_messages().filter(
         pl.col("category").eq("PracticeLogs"),
         pl.col("author").eq("Linda ”Polly Ester” Ö")
     ).sort(
         "date"
-    ).group_by_dynamic("date", every=f"{days}d").agg(
+    ).group_by_dynamic("date", every=time_aggregate).agg(
         pl.col("msg").str.concat(" ")
     )
 

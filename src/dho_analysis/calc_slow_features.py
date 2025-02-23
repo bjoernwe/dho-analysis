@@ -16,7 +16,7 @@ def main():
 
 def print_slow_features():
     df = load_time_aggregated_practice_logs(time_aggregate="1w", author="Linda ”Polly Ester” Ö")
-    df = add_message_embeddings(df)
+    df = add_message_embeddings(df, model="all-MiniLM-L6-v2")
     df = add_sfa_columns(df, pca=.98)
     print(df)
 
@@ -27,8 +27,10 @@ def add_sfa_columns(df: DataFrame, pca: float) -> DataFrame:
 
 
 def _calc_sfa(x: Series, pca: float) -> DataFrame:
-    components = PCA(n_components=pca, random_state=SEED).fit_transform(np.array(x))
-    y = SFA(n_components=3).fit_transform(components)[:,:3]
+    data = np.array(x)
+    if pca is not None and 0 < pca < 1:
+        data = PCA(n_components=pca, random_state=SEED).fit_transform(data)
+    y = SFA(n_components=3).fit_transform(data)[:,:3]
     return DataFrame(y, schema=["SFA_0", "SFA_1", "SFA_2"])
 
 

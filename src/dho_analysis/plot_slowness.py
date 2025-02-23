@@ -12,7 +12,7 @@ def main():
 def plot_slowness():
     df = load_time_aggregated_practice_logs(time_aggregate="1mo", author="Linda ”Polly Ester” Ö")
     print(df)
-    df = add_message_embeddings(df)
+    df = add_message_embeddings(df, model="all-MiniLM-L6-v2")
     df = add_sfa_columns(df, pca=.9)
     plt.plot(df.select(["date"]), df.select(["SFA_0"]))
     plt.show()

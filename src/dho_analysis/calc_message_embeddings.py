@@ -11,11 +11,11 @@ from dho_analysis.utils import memory, CACHE_DIR
 
 def main():
     df = load_time_aggregated_practice_logs(time_aggregate="1w", author="Linda ”Polly Ester” Ö")
-    df = add_message_embeddings(df)
+    df = add_message_embeddings(df, model="all-MiniLM-L6-v2")
     print(df)
 
 
-def add_message_embeddings(df: DataFrame, model: str = "all-MiniLM-L6-v2", normalize: bool = False) -> DataFrame:
+def add_message_embeddings(df: DataFrame, model: str, normalize: bool = False) -> DataFrame:
     """
     Models:
     - all-MiniLM-L6-v2
@@ -23,11 +23,16 @@ def add_message_embeddings(df: DataFrame, model: str = "all-MiniLM-L6-v2", norma
     - msmarco-MiniLM-L6-cos-v5
     - AnnaWegmann/Style-Embedding
     """
-    sentences = tuple(df.get_column("msg").to_list())
-    embeddings = _calc_embeddings(sentences, model=model, normalize=normalize)
+    embeddings = calc_embeddings(df.get_column("msg"), model=model, normalize=normalize)
     return df.with_columns(
         Series(embeddings).alias("embedding")
     )
+
+
+def calc_embeddings(msg: Series, model: str, normalize: bool = False) -> Series:
+    msg_tuple = tuple(msg.to_list())
+    embeddings = _calc_embeddings(msg_tuple, model=model, normalize=normalize)
+    return Series(embeddings)
 
 
 # Changes to this function will invalidate its cache!

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import polars as pl
 
@@ -21,7 +23,7 @@ def print_slow_features():
     print(df)
 
 
-def add_sfa_columns(df: DataFrame, pca: float) -> DataFrame:
+def add_sfa_columns(df: DataFrame, pca: Optional[float] = None) -> DataFrame:
     df_sfa = _calc_sfa(df.get_column("embedding"), pca=pca)
     return pl.concat([df, df_sfa], how="horizontal")
 

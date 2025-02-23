@@ -7,10 +7,8 @@ from sksfa import SFA
 
 from dho_analysis.calc_message_embeddings import add_message_embeddings
 from dho_analysis.calc_sentences import explode_msg_to_sentences
-from dho_analysis.calc_slow_features import add_sfa_columns
 from dho_analysis.load_practice_logs_for_author import load_practice_logs_for_author
-from dho_analysis.load_time_aggregated_practice_logs import load_time_aggregated_practice_logs, \
-    aggregate_messages_by_time
+from dho_analysis.load_time_aggregated_practice_logs import aggregate_messages_by_time
 from dho_analysis.utils import SEED
 
 
@@ -23,6 +21,7 @@ def plot_slowness(
         model: str = "all-mpnet-base-v2",
         time_aggregate: str = "1d",
         pca_components: int = 50,
+        sfa_component: int = 0,
 ):
 
     df0 = load_practice_logs_for_author(author=author)
@@ -40,15 +39,15 @@ def plot_slowness(
     df_sen = df_sen.with_columns(Series("embedding", pca.transform(np.array(df_sen["embedding"]))))
     df_agg = df_agg.with_columns(Series("embedding", pca.transform(np.array(df_agg["embedding"]))))
 
-    sfa = SFA(n_components=1, random_state=SEED)
+    sfa = SFA(n_components=sfa_component+1, random_state=SEED)
     sfa.fit(np.array(df_agg["embedding"]))
 
-    df_sen = df_sen.with_columns(Series("SFA", sfa.transform(np.array(df_sen["embedding"]))))
-    df_agg = df_agg.with_columns(Series("SFA", sfa.transform(np.array(df_agg["embedding"]))))
+    df_sen = df_sen.with_columns(Series("SFA", sfa.transform(np.array(df_sen["embedding"]))[:,sfa_component]))
+    df_agg = df_agg.with_columns(Series("SFA", sfa.transform(np.array(df_agg["embedding"]))[:,sfa_component]))
 
-    for s in df_sen.sort("SFA_0")["msg"].to_list()[:10]: print(s)
+    for s in df_sen.sort("SFA")["msg"].to_list()[:10]: print(s)
     print("\n...\n")
-    for s in df_sen.sort("SFA_0")["msg"].to_list()[-10:]: print(s)
+    for s in df_sen.sort("SFA")["msg"].to_list()[-10:]: print(s)
 
     plt.plot(df_agg.select(["date"]), df_agg.select(["SFA"]))
     plt.show()

@@ -18,17 +18,12 @@ def main():
 
 
 def explode_msg_to_sentences(df: DataFrame) -> DataFrame:
-    return (split_msg_to_sentences(df=df)
-            .explode("sentences")
-            .rename({"sentences": "sentence"})
-            )
+    return _split_msg_to_sentence_list(df=df).explode("msg")
 
 
-def split_msg_to_sentences(df: DataFrame) -> DataFrame:
+def _split_msg_to_sentence_list(df: DataFrame) -> DataFrame:
     return df.with_columns(
         pl.col("msg").map_elements(_split_sentences, return_dtype=pl.List(pl.String))
-    ).rename(
-        {"msg": "sentences"}
     )
 
 

@@ -11,9 +11,12 @@ def main():
 
 
 def load_time_aggregated_practice_logs(time_aggregate: str, author: str) -> DataFrame:
-    return load_practice_logs_for_author(
-        author=author
-    ).sort(
+    df = load_practice_logs_for_author(author=author)
+    return aggregate_messages_by_time(df=df, time_aggregate=time_aggregate)
+
+
+def aggregate_messages_by_time(df: DataFrame, time_aggregate: str) -> DataFrame:
+    return df.sort(
         "date"
     ).group_by_dynamic(
         "date", every=time_aggregate

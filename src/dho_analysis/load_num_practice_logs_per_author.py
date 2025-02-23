@@ -1,15 +1,18 @@
 import polars as pl
 
+from dho_analysis.load_practice_logs_for_author import filter_for_thread_author_only
 from dho_analysis.utils import read_dho_messages
 
 
 def main():
     df = load_num_practice_logs_per_author()
-    print(df)
+    print(df.head(10))
 
 
 def load_num_practice_logs_per_author():
-    return read_dho_messages().filter(
+    df = read_dho_messages()
+    df = filter_for_thread_author_only(df=df)
+    return df.filter(
         pl.col("category").eq("PracticeLogs")
     ).group_by(
         "author"

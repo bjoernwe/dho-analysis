@@ -1,4 +1,4 @@
-from typing import Set
+from typing import Dict
 
 import polars as pl
 
@@ -13,23 +13,36 @@ def main():
 
 
 def load_practice_logs_for_author(author: str) -> DataFrame:
-    dho_messages = read_dho_messages()
-    practice_threads_by_author = _get_practice_thread_ids_by_author(df=dho_messages, author=author)
-    return dho_messages.filter(
+    df = read_dho_messages()
+    df = filter_for_thread_author_only(df=df)
+    return df.filter(
         pl.col("category").eq("PracticeLogs"),
         pl.col("author").eq(author),
-        pl.col("thread_id").is_in(practice_threads_by_author),
     )
 
 
-def _get_practice_thread_ids_by_author(df: DataFrame, author: str) -> Set[int]:
-    return set(
-        df.filter(
-            pl.col("category").eq("PracticeLogs"),
-            pl.col("author").eq(author),
-            pl.col("is_first_in_thread"),
-        ).get_column("thread_id")
+def filter_for_thread_author_only(df: DataFrame) -> DataFrame:
+    df = add_thread_author_column(df=df)
+    return df.filter(
+        pl.col("author").eq(pl.col("thread_author"))
+    ).drop("thread_author")
+
+
+def add_thread_author_column(df: DataFrame) -> DataFrame:
+    thread_author_map = _get_thread_author_map(df=df)
+    return df.with_columns(
+        pl.col("thread_id").replace_strict(thread_author_map).alias("thread_author")
     )
+
+
+def _get_thread_author_map(df: DataFrame) -> Dict[int, str]:
+    df_thread_author = df.filter(
+        pl.col("is_first_in_thread").eq(True)
+    ).select(["thread_id", "author"])
+    return dict(zip(
+        df_thread_author["thread_id"].to_list(),
+        df_thread_author["author"].to_list()
+    ))
 
 
 if __name__ == "__main__":

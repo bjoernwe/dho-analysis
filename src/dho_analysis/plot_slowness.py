@@ -20,35 +20,42 @@ def plot_slowness(
         author: str = "Linda ”Polly Ester” Ö",
         model: str = "all-mpnet-base-v2",
         time_aggregate: str = "1d",
-        pca_components: int = 50,
+        pca_components: int = 20,
         sfa_component: int = 0,
 ):
 
+    # Load practice logs
     df0 = load_practice_logs_for_author(author=author)
     df0 = df0.sort("date")
 
+    # Calc embedding for each sentence in logs
     df_sen = explode_msg_to_sentences(df=df0)
     df_sen = add_message_embeddings(df=df_sen, model=model)
 
-    df_agg = aggregate_messages_by_time(df=df0, time_aggregate=time_aggregate)
-    df_agg = add_message_embeddings(df=df_agg, model=model)
-
+    # Calc PCA for embeddings
     pca = PCA(n_components=pca_components, random_state=SEED)
     pca.fit(np.array(df_sen["embedding"]))
 
+    # Apply PCA to embeddings
     df_sen = df_sen.with_columns(Series("embedding", pca.transform(np.array(df_sen["embedding"]))))
-    df_agg = df_agg.with_columns(Series("embedding", pca.transform(np.array(df_agg["embedding"]))))
 
+    # Aggregate messages and embeddings time-wise
+    df_agg = aggregate_messages_by_time(df=df_sen.select(["date", "msg", "embedding"]), time_aggregate=time_aggregate)
+
+    # Calc SFA for embeddings
     sfa = SFA(n_components=sfa_component+1, random_state=SEED)
     sfa.fit(np.array(df_agg["embedding"]))
 
+    # Apply SFA to embeddings
     df_sen = df_sen.with_columns(Series("SFA", sfa.transform(np.array(df_sen["embedding"]))[:,sfa_component]))
     df_agg = df_agg.with_columns(Series("SFA", sfa.transform(np.array(df_agg["embedding"]))[:,sfa_component]))
 
+    # Print most representative sentences
     for s in df_sen.sort("SFA")["msg"].to_list()[:10]: print(s)
     print("\n...\n")
     for s in df_sen.sort("SFA")["msg"].to_list()[-10:]: print(s)
 
+    # Plot slowest feature
     plt.plot(df_agg.select(["date"]), df_agg.select(["SFA"]))
     plt.show()
 

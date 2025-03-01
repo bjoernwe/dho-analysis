@@ -33,6 +33,7 @@ class ClassificationTransformer(EmbeddingModelABC):
 def _calc_embeddings(msgs: Tuple[str], model_name: str) -> np.ndarray:
     tokenizer = _get_tokenizer(model_name=model_name)
     model = _get_model(model_name=model_name)
+    print(f"Using device: {next(model.parameters()).device}")
     inputs = tokenizer(list(msgs), padding=True, truncation=True, return_tensors="pt")
     outputs = model(**inputs)
     logits = outputs.logits

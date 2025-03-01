@@ -6,6 +6,7 @@ import torch
 from typing import Tuple
 
 from polars import Series
+from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, PreTrainedTokenizer, PreTrainedModel
 
 from config import memory
@@ -20,7 +21,7 @@ class ClassificationTransformer(EmbeddingModelABC):
 
     def encode(self, msgs: Series) -> Series:
         results = []
-        for i in range(0, len(msgs), self._batch_size):
+        for i in tqdm(range(0, len(msgs), self._batch_size)):
             batch: Tuple = tuple(msgs[i:i+self._batch_size].to_list())
             embeddings = _calc_embeddings(msgs=batch, model_name=self._model_name)
             results.append(embeddings)

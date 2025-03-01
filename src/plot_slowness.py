@@ -17,7 +17,7 @@ from models.SentenceTransformerModel import SentenceTransformerModel
 
 def main():
     #model = SentenceTransformerModel("all-MiniLM-L6-v2")
-    model = ClassificationTransformer(model="j-hartmann/emotion-english-distilroberta-base", batch_size=100)
+    model = ClassificationTransformer(model="j-hartmann/emotion-english-distilroberta-base", batch_size=10)
     plot_slowness(model=model)
 
 
@@ -31,7 +31,7 @@ def plot_slowness(
 
     # Load practice logs
     df0 = load_practice_logs_for_author(author=author)
-    df0 = df0.sort("date").head(1000)
+    df0 = df0.sort("date")
 
     # Calc embedding for each sentence in logs
     df_sen = explode_msg_to_sentences(df=df0)

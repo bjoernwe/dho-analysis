@@ -4,7 +4,7 @@ import torch
 from typing import Tuple
 
 from polars import Series
-from transformers import AutoTokenizer, AutoModel, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from config import memory
 from models.EmbeddingModelABC import EmbeddingModelABC
@@ -15,17 +15,20 @@ class ClassificationTransformer(EmbeddingModelABC):
     def __init__(self, model: str):
         self._model_name: str = model
 
-    def encode(self, msgs: Series) -> Series:
-        msgs_tuple = tuple(msgs.to_list())
-        embeddings = _calc_embeddings(msgs=msgs_tuple, model_name=self._model_name)
-        return Series(embeddings)
+    def encode(self, msgs: Series, batch_size=100) -> Series:
+        results = []
+        for i in range(0, len(msgs), batch_size):
+            batch: Tuple = tuple(msgs[i:i+batch_size].to_list())
+            embeddings = _calc_embeddings(msgs=batch, model_name=self._model_name)
+            results.append(embeddings)
+        return Series("embedding", np.vstack(results))
 
 
 # Changes to this function will invalidate its cache!
 @memory.cache
 def _calc_embeddings(msgs: Tuple[str], model_name: str) -> np.ndarray:
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name, )
+    model = AutoModelForSequenceClassification.from_pretrained(model_name)
     inputs = tokenizer(msgs, padding=True, truncation=True, return_tensors="pt")
     outputs = model(**inputs)
     logits = outputs.logits

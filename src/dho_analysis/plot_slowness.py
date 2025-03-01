@@ -9,6 +9,7 @@ from dho_analysis.calc_message_embeddings import add_message_embeddings
 from dho_analysis.calc_sentences import explode_msg_to_sentences
 from dho_analysis.load_practice_logs_for_author import load_practice_logs_for_author
 from dho_analysis.load_time_aggregated_practice_logs import aggregate_messages_by_time
+from dho_analysis.models.SentenceTransformerModel import SentenceTransformerModel
 from dho_analysis.utils import SEED
 
 
@@ -18,17 +19,18 @@ def main():
 
 def plot_slowness(
         author: str = "Linda ”Polly Ester” Ö",
-        model: str = "all-mpnet-base-v2",
+        model: str = "all-MiniLM-L6-v2",
         time_aggregate: str = "1d",
-        pca_components: int = 20,
+        pca_components: int = 26,
         sfa_component: int = 0,
 ):
 
     # Load practice logs
     df0 = load_practice_logs_for_author(author=author)
-    df0 = df0.sort("date")
+    df0 = df0.sort("date").head(1000)
 
     # Calc embedding for each sentence in logs
+    model = SentenceTransformerModel(model=model)
     df_sen = explode_msg_to_sentences(df=df0)
     df_sen = add_message_embeddings(df=df_sen, model=model)
 

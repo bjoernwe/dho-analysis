@@ -9,7 +9,7 @@ from polars import DataFrame
 SEED = 0
 
 PROJECT_PATH: Path = Path(__file__).parent.parent
-CACHE_DIR: str = str(PROJECT_PATH.joinpath(".cache"))
+CACHE_DIR: str = str(PROJECT_PATH.joinpath("cache"))
 DATA_PATH: Path = PROJECT_PATH.joinpath("data")
 
 memory = Memory(location=CACHE_DIR)

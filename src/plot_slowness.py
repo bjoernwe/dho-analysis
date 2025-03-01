@@ -16,8 +16,8 @@ from models.SentenceTransformerModel import SentenceTransformerModel
 
 
 def main():
-    model = SentenceTransformerModel("all-MiniLM-L6-v2")
-    #model = ClassificationTransformer(model="j-hartmann/emotion-english-distilroberta-base")
+    #model = SentenceTransformerModel("all-MiniLM-L6-v2")
+    model = ClassificationTransformer(model="j-hartmann/emotion-english-distilroberta-base", batch_size=1000)
     plot_slowness(model=model)
 
 

@@ -12,13 +12,14 @@ from models.EmbeddingModelABC import EmbeddingModelABC
 
 class ClassificationTransformer(EmbeddingModelABC):
 
-    def __init__(self, model: str):
+    def __init__(self, model: str, batch_size: int = 1000):
         self._model_name: str = model
+        self._batch_size: int = batch_size
 
-    def encode(self, msgs: Series, batch_size=100) -> Series:
+    def encode(self, msgs: Series) -> Series:
         results = []
-        for i in range(0, len(msgs), batch_size):
-            batch: Tuple = tuple(msgs[i:i+batch_size].to_list())
+        for i in range(0, len(msgs), self._batch_size):
+            batch: Tuple = tuple(msgs[i:i+self._batch_size].to_list())
             embeddings = _calc_embeddings(msgs=batch, model_name=self._model_name)
             results.append(embeddings)
         return Series("embedding", np.vstack(results))

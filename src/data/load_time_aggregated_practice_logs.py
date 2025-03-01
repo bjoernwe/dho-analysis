@@ -5,7 +5,7 @@ from polars import DataFrame, Series
 
 from data.load_practice_logs_for_author import load_practice_logs_for_author
 from functions.calc_message_embeddings import add_message_embeddings
-from models.EmbeddingModel import EmbeddingModel
+from models.EmbeddingModelABC import EmbeddingModelABC
 from models.SentenceTransformerModel import SentenceTransformerModel
 
 
@@ -18,7 +18,7 @@ def main():
     print(df)
 
 
-def load_time_aggregated_practice_logs(time_aggregate: str, author: str, model: EmbeddingModel) -> DataFrame:
+def load_time_aggregated_practice_logs(time_aggregate: str, author: str, model: EmbeddingModelABC) -> DataFrame:
     df = load_practice_logs_for_author(author=author)
     df = add_message_embeddings(df=df, model=model)
     return aggregate_messages_by_time(df=df, time_aggregate=time_aggregate)

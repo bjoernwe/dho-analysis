@@ -5,11 +5,11 @@ from typing import Tuple
 from polars import Series
 from sentence_transformers import SentenceTransformer
 
-from models.EmbeddingModel import EmbeddingModel
+from models.EmbeddingModelABC import EmbeddingModelABC
 from config import memory
 
 
-class SentenceTransformerModel(EmbeddingModel):
+class SentenceTransformerModel(EmbeddingModelABC):
 
     def __init__(self, model: str):
         self._model_name: str = model

@@ -1,7 +1,7 @@
 from polars import DataFrame, Series
 
 from data.load_practice_logs_for_author import load_practice_logs_for_author
-from models.EmbeddingModel import EmbeddingModel
+from models.EmbeddingModelABC import EmbeddingModelABC
 from models.SentenceTransformerModel import SentenceTransformerModel
 
 
@@ -16,7 +16,7 @@ def print_example_embeddings():
     print(df)
 
 
-def add_message_embeddings(df: DataFrame, model: EmbeddingModel) -> DataFrame:
+def add_message_embeddings(df: DataFrame, model: EmbeddingModelABC) -> DataFrame:
     """
     Models:
     - all-MiniLM-L6-v2

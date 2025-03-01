@@ -1,10 +1,12 @@
+import functools
+
 import numpy as np
 import torch
 
 from typing import Tuple
 
 from polars import Series
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, PreTrainedTokenizer, PreTrainedModel
 
 from config import memory
 from models.EmbeddingModelABC import EmbeddingModelABC
@@ -12,7 +14,7 @@ from models.EmbeddingModelABC import EmbeddingModelABC
 
 class ClassificationTransformer(EmbeddingModelABC):
 
-    def __init__(self, model: str, batch_size: int = 1000):
+    def __init__(self, model: str, batch_size: int = 100):
         self._model_name: str = model
         self._batch_size: int = batch_size
 
@@ -28,13 +30,23 @@ class ClassificationTransformer(EmbeddingModelABC):
 # Changes to this function will invalidate its cache!
 @memory.cache
 def _calc_embeddings(msgs: Tuple[str], model_name: str) -> np.ndarray:
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
-    inputs = tokenizer(msgs, padding=True, truncation=True, return_tensors="pt")
+    tokenizer = _get_tokenizer(model_name=model_name)
+    model = _get_model(model_name=model_name)
+    inputs = tokenizer(list(msgs), padding=True, truncation=True, return_tensors="pt")
     outputs = model(**inputs)
     logits = outputs.logits
     probs = torch.nn.functional.softmax(logits, dim=-1)
     return probs.detach().numpy()
+
+
+@functools.lru_cache
+def _get_tokenizer(model_name: str) -> PreTrainedTokenizer:
+    return AutoTokenizer.from_pretrained(model_name)
+
+
+@functools.lru_cache
+def _get_model(model_name: str) -> PreTrainedModel:
+    return AutoModelForSequenceClassification.from_pretrained(model_name)
 
 
 def main():

@@ -5,12 +5,12 @@ from polars import Series
 from sklearn.decomposition import PCA
 from sksfa import SFA
 
-from dho_analysis.calc_message_embeddings import add_message_embeddings
-from dho_analysis.calc_sentences import explode_msg_to_sentences
-from dho_analysis.load_practice_logs_for_author import load_practice_logs_for_author
-from dho_analysis.load_time_aggregated_practice_logs import aggregate_messages_by_time
-from dho_analysis.models.SentenceTransformerModel import SentenceTransformerModel
-from dho_analysis.utils import SEED
+from functions.calc_message_embeddings import add_message_embeddings
+from functions.calc_sentences import explode_msg_to_sentences
+from data.load_practice_logs_for_author import load_practice_logs_for_author
+from data.load_time_aggregated_practice_logs import aggregate_messages_by_time
+from models.SentenceTransformerModel import SentenceTransformerModel
+from config import SEED
 
 
 def main():

@@ -4,7 +4,7 @@ import polars as pl
 
 from polars import DataFrame
 
-from dho_analysis.utils import read_dho_messages
+from config import read_dho_messages
 
 
 def main():

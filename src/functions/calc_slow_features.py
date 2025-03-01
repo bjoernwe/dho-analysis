@@ -7,18 +7,18 @@ from polars import Series, DataFrame
 from sklearn.decomposition import PCA
 from sksfa import SFA
 
-from dho_analysis.calc_message_embeddings import add_message_embeddings
-from dho_analysis.load_time_aggregated_practice_logs import load_time_aggregated_practice_logs
-from dho_analysis.utils import SEED
+from data.load_time_aggregated_practice_logs import load_time_aggregated_practice_logs
+from config import SEED
+from models.SentenceTransformerModel import SentenceTransformerModel
 
 
 def main():
-    print_slow_features()
+    print_example_slow_features()
 
 
-def print_slow_features():
-    df = load_time_aggregated_practice_logs(time_aggregate="1w", author="Linda ”Polly Ester” Ö")
-    df = add_message_embeddings(df, model="all-MiniLM-L6-v2")
+def print_example_slow_features():
+    model = SentenceTransformerModel("all-MiniLM-L6-v2")
+    df = load_time_aggregated_practice_logs(time_aggregate="1w", author="Linda ”Polly Ester” Ö", model=model)
     df = add_sfa_columns(df, pca=.98)
     print(df)
 

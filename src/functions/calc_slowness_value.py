@@ -3,14 +3,18 @@ import sksfa
 from polars import Series
 from sklearn.decomposition import PCA
 
-from dho_analysis.calc_message_embeddings import add_message_embeddings
-from dho_analysis.load_time_aggregated_practice_logs import load_time_aggregated_practice_logs
-from dho_analysis.utils import SEED
+from config import SEED
+from data.load_time_aggregated_practice_logs import load_time_aggregated_practice_logs
+from models.SentenceTransformerModel import SentenceTransformerModel
 
 
 def main():
-    df = load_time_aggregated_practice_logs(time_aggregate="1w", author="Linda ”Polly Ester” Ö")
-    df = add_message_embeddings(df=df)
+    print_example_slowness_value()
+
+
+def print_example_slowness_value():
+    model = SentenceTransformerModel("all-MiniLM-L6-v2")
+    df = load_time_aggregated_practice_logs(time_aggregate="1w", author="Linda ”Polly Ester” Ö", model=model)
     delta = calc_slowness(df.get_column("embedding"))
     print(delta)
 

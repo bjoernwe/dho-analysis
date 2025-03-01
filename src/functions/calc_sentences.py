@@ -5,13 +5,17 @@ from typing import List
 
 from polars import DataFrame
 
-from dho_analysis.load_practice_logs_for_author import load_practice_logs_for_author
+from data.load_practice_logs_for_author import load_practice_logs_for_author
 
 
 nltk.download("punkt_tab")
 
 
 def main():
+    print_example_sentences()
+
+
+def print_example_sentences():
     df = load_practice_logs_for_author(author="Linda ”Polly Ester” Ö")
     df = explode_msg_to_sentences(df=df)
     print(df)

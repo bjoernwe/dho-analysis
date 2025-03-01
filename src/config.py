@@ -8,15 +8,16 @@ from polars import DataFrame
 
 SEED = 0
 
-PROJECT_PATH: Path = Path(__file__).parent.parent.parent
+PROJECT_PATH: Path = Path(__file__).parent.parent
 CACHE_DIR: str = str(PROJECT_PATH.joinpath(".cache"))
+DATA_PATH: Path = PROJECT_PATH.joinpath("data")
 
 memory = Memory(location=CACHE_DIR)
 
 
 def read_dho_messages() -> DataFrame:
     return pl.read_ndjson(
-        "../../data/messages.jsonl"
+        str(DATA_PATH.joinpath("messages.jsonl"))
     ).with_columns(
         pl.col("date").str.strptime(pl.Datetime)
     )

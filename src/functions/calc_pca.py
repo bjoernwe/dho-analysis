@@ -4,10 +4,11 @@ from polars import DataFrame
 
 from sklearn.decomposition import PCA
 
-from dho_analysis.calc_message_embeddings import add_message_embeddings
-from dho_analysis.calc_sentences import explode_msg_to_sentences
-from dho_analysis.load_practice_logs_for_author import load_practice_logs_for_author
-from dho_analysis.utils import SEED
+from calc_message_embeddings import add_message_embeddings
+from calc_sentences import explode_msg_to_sentences
+from data.load_practice_logs_for_author import load_practice_logs_for_author
+from config import SEED
+from models.SentenceTransformerModel import SentenceTransformerModel
 
 
 def main():
@@ -16,9 +17,11 @@ def main():
 
 def print_pca_example_sentences(component: int = 0):
 
+    model = SentenceTransformerModel("all-MiniLM-L6-v2")
+
     df = load_practice_logs_for_author(author="Linda ”Polly Ester” Ö")
     df = explode_msg_to_sentences(df=df)
-    df = add_message_embeddings(df=df, model="all-MiniLM-L6-v2")
+    df = add_message_embeddings(df=df, model=model)
     df = add_pca_columns(df=df, n_components=component+1)
 
     col = f"PCA_{component}"

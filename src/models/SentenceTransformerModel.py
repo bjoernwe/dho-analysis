@@ -5,8 +5,8 @@ from typing import Tuple
 from polars import Series
 from sentence_transformers import SentenceTransformer
 
-from dho_analysis.models.EmbeddingModel import EmbeddingModel
-from dho_analysis.utils import memory
+from models.EmbeddingModel import EmbeddingModel
+from config import memory
 
 
 class SentenceTransformerModel(EmbeddingModel):

@@ -1,7 +1,7 @@
 import polars as pl
 
-from dho_analysis.load_practice_logs_for_author import filter_for_thread_author_only
-from dho_analysis.utils import read_dho_messages
+from data.load_practice_logs_for_author import filter_for_thread_author_only
+from config import read_dho_messages
 
 
 def main():

@@ -1,17 +1,22 @@
 from polars import DataFrame, Series
 
-from dho_analysis.load_practice_logs_for_author import load_practice_logs_for_author
-from dho_analysis.models.SentenceTransformerModel import SentenceTransformerModel
+from data.load_practice_logs_for_author import load_practice_logs_for_author
+from models.EmbeddingModel import EmbeddingModel
+from models.SentenceTransformerModel import SentenceTransformerModel
 
 
 def main():
+    print_example_embeddings()
+
+
+def print_example_embeddings():
     model = SentenceTransformerModel("all-MiniLM-L6-v2")
     df = load_practice_logs_for_author(author="Linda ”Polly Ester” Ö")
     df = add_message_embeddings(df, model=model)
     print(df)
 
 
-def add_message_embeddings(df: DataFrame, model: SentenceTransformerModel) -> DataFrame:
+def add_message_embeddings(df: DataFrame, model: EmbeddingModel) -> DataFrame:
     """
     Models:
     - all-MiniLM-L6-v2

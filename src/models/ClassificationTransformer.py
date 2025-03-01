@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 from typing import Tuple
 
@@ -27,7 +28,9 @@ def _calc_embeddings(msgs: Tuple[str], model_name: str) -> np.ndarray:
     model = AutoModelForSequenceClassification.from_pretrained(model_name, )
     inputs = tokenizer(msgs, padding=True, truncation=True, return_tensors="pt")
     outputs = model(**inputs)
-    return outputs.detach().numpy()
+    logits = outputs.logits
+    probs = torch.nn.functional.softmax(logits, dim=-1)
+    return probs.detach().numpy()
 
 
 def main():

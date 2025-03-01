@@ -26,3 +26,18 @@ def _calc_embeddings(sentences: Tuple[str], model: str) -> np.ndarray:
     model = SentenceTransformer(model)
     embeddings = model.encode(list(sentences), show_progress_bar=True, convert_to_numpy=True)
     return embeddings
+
+
+def main():
+    print_example_embedding()
+
+
+def print_example_embedding():
+    msgs = Series(["Exploding lights!", "Annoying dissonances!"])
+    model = SentenceTransformerModel(model="all-MiniLM-L6-v2")
+    output = model.encode(msgs=msgs)
+    print(output)
+
+
+if __name__ == "__main__":
+    main()

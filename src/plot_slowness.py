@@ -9,17 +9,21 @@ from functions.calc_message_embeddings import add_message_embeddings
 from functions.calc_sentences import explode_msg_to_sentences
 from data.load_practice_logs_for_author import load_practice_logs_for_author
 from data.load_time_aggregated_practice_logs import aggregate_messages_by_time
-from models.SentenceTransformerModel import SentenceTransformerModel
+from models.ClassificationTransformer import ClassificationTransformer
+from models.EmbeddingModelABC import EmbeddingModelABC
 from config import SEED
+from models.SentenceTransformerModel import SentenceTransformerModel
 
 
 def main():
-    plot_slowness()
+    model = SentenceTransformerModel("all-MiniLM-L6-v2")
+    #model = ClassificationTransformer(model="j-hartmann/emotion-english-distilroberta-base")
+    plot_slowness(model=model)
 
 
 def plot_slowness(
+        model: EmbeddingModelABC = SentenceTransformerModel("all-MiniLM-L6-v2"),
         author: str = "Linda ”Polly Ester” Ö",
-        model: str = "all-MiniLM-L6-v2",
         time_aggregate: str = "1d",
         pca_components: int = 26,
         sfa_component: int = 0,
@@ -30,7 +34,6 @@ def plot_slowness(
     df0 = df0.sort("date").head(1000)
 
     # Calc embedding for each sentence in logs
-    model = SentenceTransformerModel(model=model)
     df_sen = explode_msg_to_sentences(df=df0)
     df_sen = add_message_embeddings(df=df_sen, model=model)
 

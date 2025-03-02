@@ -33,8 +33,9 @@ class ClassificationTransformer(EmbeddingModelABC):
 def _calc_embeddings(msgs: Tuple[str], model_name: str) -> np.ndarray:
     tokenizer = _get_tokenizer(model_name=model_name)
     model = _get_model(model_name=model_name)
-    print(f"Using device: {next(model.parameters()).device}")
-    inputs = tokenizer(list(msgs), padding=True, truncation=True, return_tensors="pt")
+    device = next(model.parameters()).device
+    print(f"Using device: {device}")
+    inputs = tokenizer(list(msgs), padding=True, truncation=True, return_tensors="pt").to(device)
     outputs = model(**inputs)
     logits = outputs.logits
     probs = torch.nn.functional.softmax(logits, dim=-1)
@@ -48,7 +49,8 @@ def _get_tokenizer(model_name: str) -> PreTrainedTokenizer:
 
 @functools.lru_cache
 def _get_model(model_name: str) -> PreTrainedModel:
-    return AutoModelForSequenceClassification.from_pretrained(model_name)
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    return AutoModelForSequenceClassification.from_pretrained(model_name).to(device)
 
 
 def main():

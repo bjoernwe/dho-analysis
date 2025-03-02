@@ -22,7 +22,11 @@ def print_example_sentences():
 
 
 def explode_msg_to_sentences(df: DataFrame) -> DataFrame:
-    return _split_msg_to_sentence_list(df=df).explode("msg")
+    return (
+        _split_msg_to_sentence_list(df=df)
+        .explode("msg")
+        .filter(pl.col("msg").is_not_null())
+    )
 
 
 def _split_msg_to_sentence_list(df: DataFrame) -> DataFrame:

@@ -2,11 +2,17 @@ import functools
 
 import torch
 
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, PreTrainedModel, PreTrainedTokenizer
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, PreTrainedModel, PreTrainedTokenizer, \
+    Pipeline, pipeline
 
 
 def get_device() -> str:
     return "cuda:0" if torch.cuda.is_available() else "cpu"
+
+
+@functools.lru_cache
+def get_pipeline(pipeline_type: str, model_name: str) -> Pipeline:
+    return pipeline(pipeline_type, model=model_name, device=get_device())
 
 
 @functools.lru_cache

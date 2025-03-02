@@ -13,11 +13,13 @@ from models.ClassificationTransformer import ClassificationTransformer
 from models.EmbeddingModelABC import EmbeddingModelABC
 from config import SEED
 from models.SentenceTransformerModel import SentenceTransformerModel
+from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 
 
 def main():
     #model = SentenceTransformerModel("all-MiniLM-L6-v2")
-    model = ClassificationTransformer(model="j-hartmann/emotion-english-distilroberta-base", batch_size=10)
+    #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=10)
+    model = ZeroShotEmbeddingTransformer(model="facebook/bart-large-mnli", labels=["positive", "negative"], batch_size=100)
     plot_slowness(model=model)
 
 
@@ -25,7 +27,7 @@ def plot_slowness(
         model: EmbeddingModelABC = SentenceTransformerModel("all-MiniLM-L6-v2"),
         author: str = "Linda ”Polly Ester” Ö",
         time_aggregate: str = "1d",
-        pca_components: int = 26,
+        pca_components: int = .9,
         sfa_component: int = 0,
 ):
 

@@ -39,7 +39,7 @@ def _calc_embeddings(msgs: Tuple[str], model_name: str) -> np.ndarray:
     outputs = model(**inputs)
     logits = outputs.logits
     probs = torch.nn.functional.softmax(logits, dim=-1)
-    return probs.detach().numpy()
+    return probs.detach().cpu().numpy()
 
 
 @functools.lru_cache

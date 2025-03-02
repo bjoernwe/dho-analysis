@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [tool.poetry]
-#packages = [{include = "dho_analysis", from = "src"}]
+package-mode = false
 
 
 [build-system]

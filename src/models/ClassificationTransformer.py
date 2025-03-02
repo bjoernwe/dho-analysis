@@ -1,5 +1,3 @@
-import functools
-
 import numpy as np
 import torch
 
@@ -7,10 +5,10 @@ from typing import Tuple
 
 from polars import Series
 from tqdm import tqdm
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, PreTrainedTokenizer, PreTrainedModel
 
 from config import memory
 from models.EmbeddingModelABC import EmbeddingModelABC
+from models.TransformerModelUtils import get_tokenizer, get_model_for_sequence_classification
 
 
 class ClassificationTransformer(EmbeddingModelABC):
@@ -37,8 +35,8 @@ class ClassificationTransformer(EmbeddingModelABC):
 # Changes to this function will invalidate its cache!
 @memory.cache
 def _calc_embeddings(msgs: Tuple[str], model_name: str) -> np.ndarray:
-    tokenizer = _get_tokenizer(model_name=model_name)
-    model = _get_model(model_name=model_name)
+    tokenizer = get_tokenizer(model_name=model_name)
+    model = get_model_for_sequence_classification(model_name=model_name)
     device = next(model.parameters()).device
     print(f"Using device: {device}")
     inputs = tokenizer(list(msgs), padding=True, truncation=True, return_tensors="pt").to(device)
@@ -46,17 +44,6 @@ def _calc_embeddings(msgs: Tuple[str], model_name: str) -> np.ndarray:
     logits = outputs.logits
     probs = torch.nn.functional.softmax(logits, dim=-1)
     return probs.detach().cpu().numpy()
-
-
-@functools.lru_cache
-def _get_tokenizer(model_name: str) -> PreTrainedTokenizer:
-    return AutoTokenizer.from_pretrained(model_name)
-
-
-@functools.lru_cache
-def _get_model(model_name: str) -> PreTrainedModel:
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    return AutoModelForSequenceClassification.from_pretrained(model_name).to(device)
 
 
 def main():

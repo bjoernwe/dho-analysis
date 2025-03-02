@@ -14,6 +14,12 @@ from models.EmbeddingModelABC import EmbeddingModelABC
 
 
 class ClassificationTransformer(EmbeddingModelABC):
+    """
+    Models:
+    - j-hartmann/emotion-english-distilroberta-base
+    - SamLowe/roberta-base-go_emotions
+    - arpanghoshal/EmoRoBERTa
+    """
 
     def __init__(self, model: str, batch_size: int = 100):
         self._model_name: str = model

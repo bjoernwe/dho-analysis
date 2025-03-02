@@ -35,7 +35,7 @@ def _calc_embeddings(msgs: Tuple[str], model_name: str) -> np.ndarray:
     model = _get_model(model_name=model_name)
     device = next(model.parameters()).device
     print(f"Using device: {device}")
-    inputs = tokenizer(list(msgs), padding=True, truncation=True, return_tensors="pt")
+    inputs = tokenizer(list(msgs), padding=True, truncation=True, return_tensors="pt").to(device)
     outputs = model(**inputs)
     logits = outputs.logits
     probs = torch.nn.functional.softmax(logits, dim=-1)

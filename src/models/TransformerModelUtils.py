@@ -12,7 +12,9 @@ def get_device() -> str:
 
 @functools.lru_cache
 def get_pipeline(pipeline_type: str, model_name: str) -> Pipeline:
-    return pipeline(pipeline_type, model=model_name, device=get_device())
+    pipe = pipeline(pipeline_type, model=model_name, device=0)
+    print(f"Using device: {pipe.model.device}")
+    return pipe
 
 
 @functools.lru_cache

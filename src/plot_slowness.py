@@ -17,9 +17,15 @@ from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 
 
 def main():
+    labels = [
+        "positive", "negative",
+        "happy", "sad",
+        "sensory", "visual", "auditory", "somatic", "mental",
+        "vague", "specific", "abstract", "concrete", "metaphorical", "measurable",
+    ]
     #model = SentenceTransformerModel("all-MiniLM-L6-v2")
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=10)
-    model = ZeroShotEmbeddingTransformer(model="facebook/bart-large-mnli", labels=["positive", "negative"], batch_size=100)
+    model = ZeroShotEmbeddingTransformer(model="facebook/bart-large-mnli", labels=labels, batch_size=100)
     plot_slowness(model=model)
 
 

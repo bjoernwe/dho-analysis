@@ -18,31 +18,28 @@ class ZeroShotEmbeddingTransformer(EmbeddingModelABC):
         self._batch_size: int = batch_size
 
     def encode(self, msgs: Series) -> Series:
+        series = [self._calc_scores_for_series(msgs=msgs, label=label) for label in self._labels]
+        return Series("embedding", np.array(series))
+
+    def _calc_scores_for_series(self, msgs: Series, label: str) -> Series:
         results = []
         for i in tqdm(range(0, len(msgs), self._batch_size)):
             batch: Tuple = tuple(msgs[i:i+self._batch_size].to_list())
-            embeddings = _calc_embeddings(msgs=batch, model_name=self._model_name, labels=tuple(self._labels))
+            embeddings = _calc_scores(msgs=batch, model_name=self._model_name, label=label)
             results.append(embeddings)
-        return Series("embedding", np.vstack(results))
+        return Series(f"score ({label})", *results)
 
 
 # Changes to this function will invalidate its cache!
 @memory.cache
-def _calc_embeddings(msgs: Tuple[str, ...], model_name: str, labels: Tuple[str, ...]) -> np.ndarray:
+def _calc_scores(msgs: Tuple[str, ...], model_name: str, label: str) -> List[float]:
+    return [_calc_score(msg=msg, model_name=model_name, label=label) for msg in msgs]
 
+
+def _calc_score(msg: str, model_name: str, label: str) -> float:
     classifier = get_pipeline(pipeline_type="zero-shot-classification", model_name=model_name)
-
-    outputs = classifier(list(msgs), list(labels), multi_label=True)
-    scores = np.array([_output_to_sorted_scores(out) for out in outputs])
-
-    # restore original label order
-    idc = np.argsort(labels)
-    return scores[:,idc]
-
-
-def _output_to_sorted_scores(output: dict) -> np.array:
-    label_indices = np.argsort(output["labels"])
-    return np.array(output["scores"])[label_indices]
+    outputs = classifier([msg], [label], multi_label=True)
+    return outputs[0]["scores"][0]
 
 
 def main():

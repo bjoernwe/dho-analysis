@@ -27,7 +27,8 @@ class ZeroShotEmbeddingTransformer(EmbeddingModelABC):
             batch: Tuple = tuple(msgs[i:i+self._batch_size].to_list())
             embeddings = _calc_scores(msgs=batch, model_name=self._model_name, label=label)
             results.append(embeddings)
-        return Series(f"score ({label})", *results)
+        results = [item for sublist in results for item in sublist]  # flatten list
+        return Series(f"score ({label})", results)
 
 
 # Changes to this function will invalidate its cache!

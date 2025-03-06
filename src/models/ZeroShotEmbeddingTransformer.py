@@ -19,7 +19,7 @@ class ZeroShotEmbeddingTransformer(EmbeddingModelABC):
 
     def encode(self, msgs: Series) -> Series:
         series = [self._calc_scores_for_series(msgs=msgs, label=label) for label in self._labels]
-        return Series("embedding", np.array(series))
+        return Series("embedding", np.array(series).T)
 
     def _calc_scores_for_series(self, msgs: Series, label: str) -> Series:
         results = []

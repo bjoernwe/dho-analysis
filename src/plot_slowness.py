@@ -19,9 +19,13 @@ from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 def main():
     labels = [
         "positive", "negative",
-        "happy", "sad",
+        "happiness", "sadness",
+        "confusion", "fear", "anxiety", "pain", "optimism",
+        "calmness", "equanimity", "spaciousness", "harmony", "dissonance",
         "sensory", "visual", "auditory", "somatic", "mental",
         "vague", "specific", "abstract", "concrete", "metaphorical", "measurable",
+        "paradox",
+        "active", "passive", "agency",
     ]
     #model = SentenceTransformerModel("all-MiniLM-L6-v2")
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=10)

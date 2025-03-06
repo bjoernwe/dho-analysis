@@ -25,7 +25,7 @@ def main():
     ]
     #model = SentenceTransformerModel("all-MiniLM-L6-v2")
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=10)
-    model = ZeroShotEmbeddingTransformer(model="facebook/bart-large-mnli", labels=labels, batch_size=100)
+    model = ZeroShotEmbeddingTransformer(model="facebook/bart-large-mnli", labels=labels, batch_size=1000)
     plot_slowness(model=model)
 
 

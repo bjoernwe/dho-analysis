@@ -10,6 +10,14 @@ from config import memory
 
 
 class SentenceTransformerModel(EmbeddingModelABC):
+    """
+    Models:
+    - all-MiniLM-L6-v2
+    - all-mpnet-base-v2
+    - multi-qa-mpnet-base-dot-v1
+    - msmarco-MiniLM-L6-cos-v5
+    - AnnaWegmann/Style-Embedding
+    """
 
     def __init__(self, model: str):
         self._model_name: str = model

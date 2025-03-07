@@ -25,7 +25,8 @@ def main():
         "sensory", "visual", "auditory", "somatic", "mental",
         "vague", "specific", "abstract", "concrete", "metaphorical", "measurable",
         "paradox",
-        "active", "passive", "agency",
+        "agency", "passivity",
+        "new", "old", "familiar", "surprising",
     ]
     model = SentenceTransformerModel("all-mpnet-base-v2", batch_size=1000)
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=10)

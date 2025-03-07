@@ -20,13 +20,13 @@ def main():
     labels = [
         "positive", "negative",
         "happiness", "sadness",
-        "confusion", "fear", "anxiety", "pain", "optimism",
+        "confusion", "fear", "anxiety", "pain", "optimism", "challenge",
         "calmness", "equanimity", "spaciousness", "harmony", "dissonance",
         "sensory", "visual", "auditory", "somatic", "mental",
         "vague", "specific", "abstract", "concrete", "metaphorical", "measurable",
         "paradox",
         "agency", "passivity",
-        "new", "old", "familiar", "surprising",
+        "familiar", "unfamiliar", "surprising",
     ]
     model = SentenceTransformerModel("all-mpnet-base-v2", batch_size=1000)
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=10)

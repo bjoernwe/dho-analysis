@@ -19,14 +19,15 @@ from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 zeroshot_labels = [
     "turtles",  # as plausibility check
     "positive", "negative",
-    "happiness", "sadness",
-    "confusion", "fear", "anxiety", "pain", "optimism",
+    "happiness",
+    "fear", "anxiety", "pain", "optimism",
     "calmness", "equanimity", "spaciousness", "harmony", "dissonance",
     "sensory", "visual", "auditory", "somatic", "mental",
-    "vague", "specific", "abstract", "concrete", "metaphorical", "measurable",
-    "paradox",
-    "agency", "passivity",
+    "vague", "abstract", "concrete", "metaphorical", "measurable",
+    "passivity",
     "familiar", "unfamiliar", "surprising",
+    # useless labels:
+    # "agency", "sadness", "paradox", "specific", "confusion"
 ]
 
 

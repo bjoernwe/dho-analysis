@@ -16,21 +16,23 @@ from models.SentenceTransformerModel import SentenceTransformerModel
 from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 
 
+zeroshot_labels = [
+    "positive", "negative",
+    "happiness", "sadness",
+    "confusion", "fear", "anxiety", "pain", "optimism",
+    "calmness", "equanimity", "spaciousness", "harmony", "dissonance",
+    "sensory", "visual", "auditory", "somatic", "mental",
+    "vague", "specific", "abstract", "concrete", "metaphorical", "measurable",
+    "paradox",
+    "agency", "passivity",
+    "new", "old", "familiar", "surprising",
+]
+
+
 def main():
-    labels = [
-        "positive", "negative",
-        "happiness", "sadness",
-        "confusion", "fear", "anxiety", "pain", "optimism",
-        "calmness", "equanimity", "spaciousness", "harmony", "dissonance",
-        "sensory", "visual", "auditory", "somatic", "mental",
-        "vague", "specific", "abstract", "concrete", "metaphorical", "measurable",
-        "paradox",
-        "agency", "passivity",
-        "new", "old", "familiar", "surprising",
-    ]
     model = SentenceTransformerModel("all-mpnet-base-v2", batch_size=1000)
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=10)
-    #model = ZeroShotEmbeddingTransformer(model="facebook/bart-large-mnli", labels=labels, batch_size=1000)
+    #model = ZeroShotEmbeddingTransformer(model="facebook/bart-large-mnli", labels=zeroshot_labels, batch_size=1000)
     plot_slowness(model=model)
 
 

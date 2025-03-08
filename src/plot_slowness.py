@@ -25,7 +25,7 @@ zeroshot_labels = [
     "vague", "specific", "abstract", "concrete", "metaphorical", "measurable",
     "paradox",
     "agency", "passivity",
-    "new", "old", "familiar", "surprising",
+    "familiar", "unfamiliar", "surprising",
 ]
 
 

@@ -11,6 +11,12 @@ from models.TransformerModelUtils import get_pipeline
 
 
 class ZeroShotEmbeddingTransformer(EmbeddingModelABC):
+    """
+    Models:
+    - facebook/bart-large-mnli
+    - knowledgator/comprehend_it-base
+    - MoritzLaurer/deberta-v3-large-zeroshot-v1.1-all-33
+    """
 
     def __init__(self, model: str, labels: List[str], batch_size: int = 100):
         self._model_name: str = model
@@ -49,7 +55,7 @@ def main():
 
 def print_example_embedding():
     model = ZeroShotEmbeddingTransformer(
-        model="facebook/bart-large-mnli",
+        model="knowledgator/comprehend_it-base",
         labels=["positive", "negative", "furry"]
     )
     output = model.encode(Series(["This is cool!", "This is not cool!", "This is a cat"]))

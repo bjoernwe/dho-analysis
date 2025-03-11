@@ -34,7 +34,7 @@ def print_slowness_gain_depending_on_dims(
     df_sen = explode_msg_to_sentences(df=df0)
 
     # Calc embedding for each sentence in logs
-    model = ZeroShotEmbeddingTransformer(model="facebook/bart-large-mnli", labels=zeroshot_labels, batch_size=1000)
+    model = ZeroShotEmbeddingTransformer(model="knowledgator/comprehend_it-base", labels=zeroshot_labels, batch_size=1000)
     df_embeddings = add_message_embeddings(df=df_sen, model=model)
     #df_mock_embeddings = add_mock_message_embeddings(df=df_sen, dims=len(zeroshot_labels))
 

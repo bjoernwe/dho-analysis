@@ -34,7 +34,7 @@ zeroshot_labels = [
 def main():
     #model = SentenceTransformerModel("all-mpnet-base-v2", batch_size=1000)
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=10)
-    model = ZeroShotEmbeddingTransformer(model="facebook/bart-large-mnli", labels=zeroshot_labels, batch_size=1000)
+    model = ZeroShotEmbeddingTransformer(model="knowledgator/comprehend_it-base", labels=zeroshot_labels, batch_size=1000)
     plot_slowness(model=model)
 
 

@@ -24,11 +24,11 @@ def calc_slowness_for_series(s: Series) -> float:
     return calc_slowness_for_array(a)
 
 
-def calc_slowness_for_array(a: np.ndarray) -> float:
+def calc_slowness_for_array(a: np.ndarray, dims: int = 1) -> float:
     components = PCA(n_components=.99, random_state=SEED).fit_transform(a)
-    sfa = sksfa.SFA(n_components=1)
+    sfa = sksfa.SFA(n_components=dims)
     sfa.fit(components)
-    return float(sfa.delta_values_[0])
+    return float(np.sum(sfa.delta_values_[:dims]))
 
 
 if __name__ == "__main__":

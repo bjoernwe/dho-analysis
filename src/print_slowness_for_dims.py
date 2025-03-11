@@ -92,7 +92,7 @@ def _calc_delta_diffs(embeddings: np.ndarray):
 
 
 def _calc_slowness(embeddings: np.ndarray, dims: int) -> float:
-    return calc_slowness_for_array(embeddings[:,:dims])
+    return calc_slowness_for_array(embeddings[:,:dims], dims=2)
 
 
 if __name__ == "__main__":

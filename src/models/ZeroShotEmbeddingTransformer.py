@@ -15,6 +15,8 @@ class ZeroShotEmbeddingTransformer(EmbeddingModelABC):
     Models:
     - facebook/bart-large-mnli
     - knowledgator/comprehend_it-base
+    - MoritzLaurer/ModernBERT-large-zeroshot-v2.0
+    - MoritzLaurer/deberta-v3-base-zeroshot-v1.1-all-33
     - MoritzLaurer/deberta-v3-large-zeroshot-v1.1-all-33
     """
 

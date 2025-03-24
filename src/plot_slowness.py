@@ -21,6 +21,13 @@ zeroshot_labels = [
 
     "positive", "negative",
 
+    # "empathetic" dataset
+    "afraid", "angry", "annoyed", "anticipating", "anxious", "apprehensive", "ashamed", "caring", "confident",
+    "content", "devastated", "disappointed", "disgusted", "embarrassed", "excited", "faithful", "furious", "grateful",
+    "guilty", "hopeful", "impressed", "jealous", "joyful", "lonely", "nostalgic", "prepared", "proud", "sad",
+    "sentimental", "surprised", "terrified", "trusting",
+
+    # misc
     "pain",
     "fire",
     "calmness", "equanimity", "spaciousness", "harmony", "dissonance",
@@ -28,12 +35,6 @@ zeroshot_labels = [
     "vague", "abstract", "concrete", "metaphorical", "measurable",
     "passivity",
     "unfamiliar",
-
-    # "empathetic" dataset
-    "afraid", "angry", "annoyed", "anticipating", "anxious", "apprehensive", "ashamed", "caring", "confident",
-    "content", "devastated", "disappointed", "disgusted", "embarrassed", "excited", "faithful", "furious", "grateful",
-    "guilty", "hopeful", "impressed", "jealous", "joyful", "lonely", "nostalgic", "prepared", "proud", "sad",
-    "sentimental", "surprised", "terrified", "trusting",
 
     # empirically useless labels:
     # "familiar", "happiness", "passivity","surprising", "agency", "sadness", "paradox", "specific", "confusion"

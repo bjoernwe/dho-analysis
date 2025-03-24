@@ -73,11 +73,12 @@ def plot_slowness(
     df_agg = df_agg.with_columns(Series("SFA", sfa.transform(np.array(df_agg["embedding"]))[:,sfa_component]))
 
     # Print most representative sentences
-    for s in df_sen.sort("SFA")["msg"].to_list()[:10]: print(s)
-    print("\n...\n")
     for s in df_sen.sort("SFA")["msg"].to_list()[-10:]: print(s)
+    print("\n...\n")
+    for s in df_sen.sort("SFA")["msg"].to_list()[:10][::-1]: print(s)
 
     # Plot slowest feature
+    plt.figure(figsize=(10, 5))
     plt.plot(df_agg.select(["date"]), df_agg.select(["SFA"]))
     plt.show()
 

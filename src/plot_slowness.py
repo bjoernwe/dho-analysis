@@ -18,23 +18,32 @@ from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 
 zeroshot_labels = [
     "turtles",  # as baseline
+
     "positive", "negative",
+
+    "pain",
     "fire",
-    "fear", "anxiety", "pain", "optimism",
     "calmness", "equanimity", "spaciousness", "harmony", "dissonance",
     "sensory", "visual", "auditory", "somatic", "mental",
     "vague", "abstract", "concrete", "metaphorical", "measurable",
     "passivity",
     "unfamiliar",
+
+    # "empathetic" dataset
+    "afraid", "angry", "annoyed", "anticipating", "anxious", "apprehensive", "ashamed", "caring", "confident",
+    "content", "devastated", "disappointed", "disgusted", "embarrassed", "excited", "faithful", "furious", "grateful",
+    "guilty", "hopeful", "impressed", "jealous", "joyful", "lonely", "nostalgic", "prepared", "proud", "sad",
+    "sentimental", "surprised", "terrified", "trusting",
+
     # empirically useless labels:
     # "familiar", "happiness", "passivity","surprising", "agency", "sadness", "paradox", "specific", "confusion"
 ]
 
 
 def main():
-    #model = SentenceTransformerModel("all-mpnet-base-v2", batch_size=1000)
-    #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=10)
-    model = ZeroShotEmbeddingTransformer(model="knowledgator/comprehend_it-base", labels=zeroshot_labels, batch_size=1000)
+    model = SentenceTransformerModel("all-MiniLM-L6-v2", batch_size=1000)
+    #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=100)
+    model = ZeroShotEmbeddingTransformer(model="MoritzLaurer/deberta-v3-base-zeroshot-v1.1-all-33", labels=zeroshot_labels, batch_size=1000)
     plot_slowness(model=model)
 
 

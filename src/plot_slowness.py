@@ -22,27 +22,29 @@ zeroshot_labels = [
     "positive", "negative",
 
     # "empathetic" dataset
-    "afraid", "angry", "annoyed", "anticipating", "anxious", "apprehensive", "ashamed", "caring", "confident",
-    "content", "devastated", "disappointed", "disgusted", "embarrassed", "excited", "faithful", "furious", "grateful",
-    "guilty", "hopeful", "impressed", "jealous", "joyful", "lonely", "nostalgic", "prepared", "proud", "sad",
-    "sentimental", "surprised", "terrified", "trusting",
+    "afraid", "anxious", "apprehensive", "ashamed", "caring",
+    "content", "disgusted", "excited", "faithful", "grateful",
+    "guilty", "hopeful", "joyful", "lonely",
+    #"sentimental", "confident", "terrified", "disappointed", "furious", "surprised", "angry", "impressed", "annoyed",
+    #"jealous", "devastated", "anticipating", "trusting", "nostalgic", "prepared", "proud", "sad", "embarrassed",
 
     # misc
     "pain",
-    "fire",
-    "calmness", "equanimity", "spaciousness", "harmony", "dissonance",
-    "sensory", "visual", "auditory", "somatic", "mental",
-    "vague", "abstract", "concrete", "metaphorical", "measurable",
+    #"fire",
+    "calmness", "spaciousness", "harmony",
+    "sensory", "visual", "somatic", "mental",
+    "vague", "abstract", "metaphorical", "measurable",
     "passivity",
     "unfamiliar",
 
     # empirically useless labels:
-    # "familiar", "happiness", "passivity","surprising", "agency", "sadness", "paradox", "specific", "confusion"
+    # "dissonance", "concrete", "auditory", "equanimity",
+    # "familiar", "happiness", "passivity", "satisfaction", "surprising", "agency", "sadness", "paradox", "specific", "confusion"
 ]
 
 
 def main():
-    model = SentenceTransformerModel("all-MiniLM-L6-v2", batch_size=1000)
+    #model = SentenceTransformerModel("all-MiniLM-L6-v2", batch_size=1000)
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=100)
     model = ZeroShotEmbeddingTransformer(model="MoritzLaurer/deberta-v3-base-zeroshot-v1.1-all-33", labels=zeroshot_labels, batch_size=1000)
     plot_slowness(model=model)

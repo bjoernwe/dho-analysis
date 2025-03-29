@@ -43,7 +43,7 @@ def print_slowness_gain_depending_on_dims(
     #df_agg_mock = aggregate_messages_by_time(df=df_mock_embeddings.select(["date", "msg", "embedding"]), time_aggregate=time_aggregate)
 
     # Calc slowness gains for embeddings
-    df_gains = _calc_slowness_gains_for_embeddings(embeddings=df_agg["embedding"], labels=zeroshot_labels, n_iterations=100)
+    df_gains = _calc_slowness_gains_for_embeddings(embeddings=df_agg["embedding"], labels=zeroshot_labels, n_iterations=1000)
     for i in range(len(df_gains)):
         print(f"{df_gains['label'][i]}: {df_gains['mean_delta_diff'][i]}")
 

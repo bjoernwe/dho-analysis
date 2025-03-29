@@ -87,10 +87,11 @@ def plot_slowness(
     sfa_weights_unsorted = sfa.affine_parameters()[0][sfa_component]
     idc = np.argsort(sfa_weights_unsorted)
     sfa_weights = sfa_weights_unsorted[idc]
+    color_limit = max(abs(min(sfa_weights)), abs(max(sfa_weights)))
     plt.barh(
         [zeroshot_labels[i] for i in idc],
         sfa_weights,
-        color=plt.get_cmap("PiYG")(plt.Normalize(min(sfa_weights), max(sfa_weights))(sfa_weights))
+        color=plt.get_cmap("PiYG")(plt.Normalize(-color_limit, color_limit)(sfa_weights))
     )
 
     # Plot slowest feature

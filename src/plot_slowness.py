@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from polars import Series
 
-from sklearn.decomposition import PCA
 from sksfa import SFA
 
 from functions.calc_message_embeddings import add_message_embeddings
@@ -54,7 +53,7 @@ def plot_slowness(
         model: EmbeddingModelABC = SentenceTransformerModel("all-MiniLM-L6-v2"),
         author: str = "Linda ”Polly Ester” Ö",
         time_aggregate: str = "1d",
-        pca_components: int = .9,
+        pca_min_explained: float = 1e-3,
         sfa_component: int = 0,
 ):
 
@@ -66,19 +65,13 @@ def plot_slowness(
     df_sen = explode_msg_to_sentences(df=df0)
     df_sen = add_message_embeddings(df=df_sen, model=model)
 
-    # Calc PCA for embeddings
-    pca = PCA(n_components=pca_components, random_state=SEED)
-    pca.fit(np.array(df_sen["embedding"]))
-
-    # Apply PCA to embeddings
-    df_sen = df_sen.with_columns(Series("embedding", pca.transform(np.array(df_sen["embedding"]))))
-
     # Aggregate messages and embeddings time-wise
     df_agg = aggregate_messages_by_time(df=df_sen.select(["date", "msg", "embedding"]), time_aggregate=time_aggregate)
 
     # Calc SFA for embeddings
-    sfa = SFA(n_components=sfa_component+1, random_state=SEED)
+    sfa = SFA(n_components=sfa_component+1, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
     sfa.fit(np.array(df_agg["embedding"]))
+    print(f"PCA: {sfa.input_dim_} -> {sfa.n_nontrivial_components_}")
 
     # Apply SFA to embeddings
     df_sen = df_sen.with_columns(Series("SFA", sfa.transform(np.array(df_sen["embedding"]))[:,sfa_component]))

@@ -19,27 +19,27 @@ zeroshot_labels = [
     "turtles",  # as baseline
 
     "positive", "negative",
-    #"certain", "certainty", "uncertain", "uncertainty",
+    "uncertainty", #"certainty",
+    "past", "future", #"present",
 
     # "empathetic" dataset
-    "afraid", "anxious", "apprehensive", "ashamed", "caring",
-    "content", "disgusted", "excited", "faithful", "grateful",
-    "guilty", "hopeful", "joyful", "lonely",
-    #"sentimental", "confident", "terrified", "disappointed", "furious", "surprised", "angry", "impressed", "annoyed",
-    #"jealous", "devastated", "anticipating", "trusting", "nostalgic", "prepared", "proud", "sad", "embarrassed",
+    "hopeful", "sentimental", "surprised", "impressed", "anticipating", "trusting", "joyful", "excited",
+    #"feeling content", "being prepared",
+    #"jealous", "guilty", "embarrassed", "ashamed", "nostalgic", "lonely", "afraid", "annoyed", "terrified", "proud",
+    #"angry", "devastated", "caring", "apprehensive", "furious", "disgusted", "anxious", "sad", "confident",
+    #"disappointed", "faithful", "grateful",
 
     # misc
-    "pain",
     #"fire",
-    "calmness", "spaciousness", "harmony",
+    "spaciousness",
     "sensory", "visual", "somatic", "mental",
-    "vague", "abstract", "metaphorical", "measurable",
-    "passivity",
-    "unfamiliar",
-
-    # empirically useless labels:
-    # "dissonance", "concrete", "auditory", "equanimity",
-    # "familiar", "happiness", "passivity", "satisfaction", "surprising", "agency", "sadness", "paradox", "specific", "confusion"
+    "vague", "abstract", "measurable",
+    "passivity", "calmness", "harmony",
+    "equanimity", "metaphorical",
+    "dissonance", "auditory",
+    "familiar", "happiness", "passivity", "satisfaction", "surprising", "agency", "paradox", "specific",
+    "confusion", "unfamiliar",
+    #"pain", "concrete", "sadness",
 ]
 
 

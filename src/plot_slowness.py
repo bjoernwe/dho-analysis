@@ -70,9 +70,8 @@ def plot_slowness(
     df_agg = aggregate_messages_by_time(df=df_sen.select(["date", "msg", "embedding"]), time_aggregate=time_aggregate)
 
     # Calc SFA for embeddings
-    sfa = SFA(n_components=sfa_component+1, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
+    sfa = SFA(n_components=3, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
     sfa.fit(np.array(df_agg["embedding"]))
-    print(f"PCA: {sfa.input_dim_} -> {sfa.n_nontrivial_components_}")
 
     # Apply SFA to embeddings
     df_sen = df_sen.with_columns(Series("SFA", sfa.transform(np.array(df_sen["embedding"]))[:,sfa_component]))

@@ -83,21 +83,57 @@ def plot_slowness(
     print("\n...\n")
     for s in df_sen.sort("SFA")["msg"].to_list()[:10][::-1]: print(s)
 
-    # Plot SFA weights
-    sfa_weights_unsorted = sfa.affine_parameters()[0][sfa_component]
+    # Print PCA info
+    print(f"\nPCA: {sfa.input_dim_} -> {sfa.n_nontrivial_components_}")
+    #print(f"Explained variance: {sfa.pca_whiten_.explained_variance_}")
+    #print(f"Delta values: {sfa.delta_values_[:sfa.n_nontrivial_components_]}\n")
+
+    # Plots
+    #plot_pca_and_sfa_variances(sfa=sfa)
+    plot_temporal_label_importance(sfa=sfa, labels=zeroshot_labels)
+    plot_sfa_weights(sfa=sfa, component=0)
+
+    # Plot slowest feature
+    plt.figure()
+    plt.plot(df_agg.select(["date"]), df_agg.select(["SFA"]))
+    plt.show()
+
+
+def plot_pca_and_sfa_variances(sfa: SFA):
+    plt.figure()
+    plt.title("Explained variance")
+    plt.plot(sfa.pca_whiten_.explained_variance_)
+    plt.plot(sfa.delta_values_)
+
+
+def plot_sfa_weights(sfa: SFA, component: int = 0):
+
+    sfa_weights_unsorted = sfa.affine_parameters()[0][component]
     idc = np.argsort(sfa_weights_unsorted)
     sfa_weights = sfa_weights_unsorted[idc]
+
     color_limit = max(abs(min(sfa_weights)), abs(max(sfa_weights)))
+    plt.figure()
+    plt.title(f"Label weights in SFA component #{component}")
     plt.barh(
         [zeroshot_labels[i] for i in idc],
         sfa_weights,
         color=plt.get_cmap("PiYG")(plt.Normalize(-color_limit, color_limit)(sfa_weights))
     )
 
-    # Plot slowest feature
-    plt.figure(figsize=(10, 5))
-    plt.plot(df_agg.select(["date"]), df_agg.select(["SFA"]))
-    plt.show()
+
+def plot_temporal_label_importance(sfa: SFA, labels: list[str]):
+
+    weighted_weights = sfa.affine_parameters()[0] / sfa.delta_values_[:sfa.n_components, np.newaxis]
+    label_importance = np.max(np.abs(weighted_weights), axis=0)
+    idc = np.argsort(label_importance)
+
+    plt.figure()
+    plt.title("Temporal importance per label")
+    plt.barh(
+        [labels[i] for i in idc],
+        label_importance[idc],
+    )
 
 
 if __name__ == "__main__":

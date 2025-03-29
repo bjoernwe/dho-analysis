@@ -53,7 +53,7 @@ def plot_slowness(
         model: EmbeddingModelABC = SentenceTransformerModel("all-MiniLM-L6-v2"),
         author: str = "Linda ”Polly Ester” Ö",
         time_aggregate: str = "1d",
-        pca_min_explained: float = 1e-3,
+        pca_min_explained: float = 1e-2,
         sfa_component: int = 0,
 ):
 
@@ -81,6 +81,16 @@ def plot_slowness(
     for s in df_sen.sort("SFA")["msg"].to_list()[-10:]: print(s)
     print("\n...\n")
     for s in df_sen.sort("SFA")["msg"].to_list()[:10][::-1]: print(s)
+
+    # Plot SFA weights
+    sfa_weights_unsorted = sfa.affine_parameters()[0][sfa_component]
+    idc = np.argsort(sfa_weights_unsorted)
+    sfa_weights = sfa_weights_unsorted[idc]
+    plt.barh(
+        [zeroshot_labels[i] for i in idc],
+        sfa_weights,
+        color=plt.get_cmap("PiYG")(plt.Normalize(min(sfa_weights), max(sfa_weights))(sfa_weights))
+    )
 
     # Plot slowest feature
     plt.figure(figsize=(10, 5))

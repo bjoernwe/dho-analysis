@@ -19,6 +19,7 @@ zeroshot_labels = [
     "turtles",  # as baseline
 
     "positive", "negative",
+    #"certain", "certainty", "uncertain", "uncertainty",
 
     # "empathetic" dataset
     "afraid", "anxious", "apprehensive", "ashamed", "caring",

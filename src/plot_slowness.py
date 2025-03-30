@@ -34,6 +34,7 @@ zeroshot_labels: List[str] = [
 
     # misc
     "fire",
+    "meditation",
     "sensory", "visual", "somatic", "mental",
     "vague", "abstract", "measurable",
     "passivity", "calmness", "harmony",
@@ -46,9 +47,9 @@ zeroshot_labels: List[str] = [
     "space",
     "conceptual", "non-conceptual",
     "tingling", "vibrations",
-    "sleepiness", "alertness",
+    "sleep", "sleepiness", "alertness", "energetic",
     "direct experience",
-    #"weird", "strange",
+    "weird", "strange",
 ]
 
 

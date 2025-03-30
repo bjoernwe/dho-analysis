@@ -1,3 +1,5 @@
+from typing import List
+
 import matplotlib.pyplot as plt
 import numpy as np
 from polars import Series, DataFrame
@@ -15,7 +17,7 @@ from models.SentenceTransformerModel import SentenceTransformerModel
 from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 
 
-zeroshot_labels = [
+zeroshot_labels: List[str] = [
     "turtles",  # as baseline
 
     "positive", "negative",
@@ -106,6 +108,8 @@ def plot_slowness(
 
     # Plots
     plot_pca_and_sfa_variances(sfa=sfa)
+    plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=0)
+    plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=1)
     plot_temporal_label_importance(sfa=sfa, labels=zeroshot_labels, df=df_agg)
     plot_sfa_weights(sfa=sfa, component=0)
     plot_sfa_weights(sfa=sfa, component=1)
@@ -123,6 +127,22 @@ def plot_pca_and_sfa_variances(sfa: SFA):
     ax1.plot(sfa.pca_whiten_.explained_variance_, label="variance")
     ax2 = plt.twinx()
     ax2.plot(sfa.delta_values_, label="delta")
+
+
+def plot_pca_weights(sfa: SFA, labels: List[str], dim: int = 0):
+
+    weights_unsorted = sfa.pca_whiten_.components_[dim]
+    idc = np.argsort(weights_unsorted)
+    weights = weights_unsorted[idc]
+
+    color_limit = max(abs(min(weights)), abs(max(weights)))
+    plt.figure()
+    plt.title(f"Label weights in PCA component #{dim}")
+    plt.barh(
+        np.array(labels)[idc],
+        weights,
+        color=plt.get_cmap("RdBu")(plt.Normalize(-color_limit, color_limit)(weights))
+    )
 
 
 def plot_sfa_weights(sfa: SFA, component: int = 0):

@@ -65,7 +65,7 @@ def plot_slowness(
         author: str = "Linda ”Polly Ester” Ö",
         time_aggregate: str = "1d",
         pca_min_explained: float = 3e-2,
-        sfa_component: int = 1,
+        sfa_component: int = 0,
 ):
 
     # Load practice logs

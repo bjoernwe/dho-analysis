@@ -99,6 +99,7 @@ def plot_slowness(
     df_agg = add_sfa_from_embedding(df=df_agg, sfa=sfa, n_components=sfa_components)
 
     # Print most representative sentences
+    print_pca_sentences(df_sen=df_sen, sfa=sfa, n_pca_components=4)
     print_sfa_sentences(df_sen=df_sen, n_sfa_components=sfa_components)
 
     # Plots
@@ -124,6 +125,19 @@ def add_sfa_from_embedding(df: DataFrame, sfa: SFA, n_components: int):
     for i in range(n_components):
         result = result.with_columns(Series(f"SFA_{i}", sfa_features[:, i]))
     return result
+
+
+def print_pca_sentences(df_sen: DataFrame, sfa: SFA, n_pca_components: int):
+    pca_features = sfa.pca_whiten_.transform(np.array(df_sen["embedding"]))
+    for i in range(n_pca_components):
+        print("******************************")
+        print(f"Sentences for PCA component #{i}")
+        print("******************************\n")
+        df_sen_pca = df_sen.with_columns(Series(f"PCA_{i}", pca_features[:, i]))
+        for s in df_sen_pca.sort(f"PCA_{i}")["msg"].to_list()[-10:]: print(s)
+        print("\n...\n")
+        for s in df_sen_pca.sort(f"PCA_{i}")["msg"].to_list()[:10][::-1]: print(s)
+        print("\n")
 
 
 def print_sfa_sentences(df_sen: DataFrame, n_sfa_components: int):

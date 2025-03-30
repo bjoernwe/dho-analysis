@@ -42,6 +42,9 @@ zeroshot_labels = [
     # "concrete",
     "pain", #"sadness", "satisfaction",
     "spaciousness",
+    "conceptual", "non-conceptual",
+    "tingling", "vibrations",
+    "sleepiness", "alertness",
 ]
 
 

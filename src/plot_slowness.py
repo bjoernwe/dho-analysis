@@ -19,15 +19,15 @@ zeroshot_labels = [
     "turtles",  # as baseline
 
     "positive", "negative",
-    "uncertainty", "certainty",
+    "uncertainty", #"certainty",
     "past", #"future", #"present",
 
     # "empathetic" dataset
-    "sentimental", "impressed", "joyful", "excited",
+    "sentimental", "impressed", "excited", #"joyful",
     "feeling content", #"being prepared",
     #"jealous", "guilty", "embarrassed", "ashamed", "nostalgic", "lonely", "afraid", "annoyed", "terrified", "proud",
     #"angry", "devastated", "caring", "apprehensive", "furious", "disgusted", "anxious", "sad", "surprised",
-    "confident",
+    #"confident",
     #"disappointed", "faithful", "grateful", "trusting", "hopeful", "anticipating",
 
     # misc
@@ -37,11 +37,11 @@ zeroshot_labels = [
     "passivity", "calmness", "harmony",
     "equanimity", "metaphorical",
     "dissonance", "auditory",
-    "familiar", "happiness", "passivity", "agency", "paradox", "specific",
+    "familiar", "passivity", "agency", "paradox", "specific", #"happiness",
     "confusion", #"unfamiliar",
     # "concrete",
-    "pain", #"sadness", "satisfaction",
-    "spaciousness",
+    #"pain", #"sadness", "satisfaction",
+    #"spaciousness",
     "conceptual", "non-conceptual",
     "tingling", "vibrations",
     "sleepiness", "alertness",
@@ -118,7 +118,7 @@ def plot_slowness(
 
 def plot_pca_and_sfa_variances(sfa: SFA):
     #plt.figure()
-    fig, ax1 = plt.subplots()
+    _, ax1 = plt.subplots()
     plt.title("Explained variance / delta")
     ax1.plot(sfa.pca_whiten_.explained_variance_, label="variance")
     ax2 = plt.twinx()

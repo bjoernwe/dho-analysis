@@ -99,9 +99,7 @@ def plot_slowness(
     df_agg = df_agg.with_columns(Series("SFA", sfa.transform(np.array(df_agg["embedding"]))[:,sfa_component]))
 
     # Print most representative sentences
-    for s in df_sen.sort("SFA")["msg"].to_list()[-10:]: print(s)
-    print("\n...\n")
-    for s in df_sen.sort("SFA")["msg"].to_list()[:10][::-1]: print(s)
+    print_sfa_sentences(df_sen)
 
     # Print PCA info
     print(f"\nPCA: {sfa.input_dim_} -> {sfa.n_nontrivial_components_}")
@@ -123,6 +121,12 @@ def plot_slowness(
     plt.figure()
     plt.plot(df_agg.select(["date"]), df_agg.select(["SFA"]))
     plt.show()
+
+
+def print_sfa_sentences(df_sen):
+    for s in df_sen.sort("SFA")["msg"].to_list()[-10:]: print(s)
+    print("\n...\n")
+    for s in df_sen.sort("SFA")["msg"].to_list()[:10][::-1]: print(s)
 
 
 def plot_explained_variances(sfa: SFA):

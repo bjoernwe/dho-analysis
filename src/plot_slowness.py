@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from polars import Series
+from polars import Series, DataFrame
 
 from sksfa import SFA
 
@@ -55,11 +55,11 @@ def main():
     model = ZeroShotEmbeddingTransformer(model="MoritzLaurer/deberta-v3-base-zeroshot-v1.1-all-33", labels=zeroshot_labels, batch_size=1000)
 
     author = "Linda ”Polly Ester” Ö"
-    #author="Siavash '"
-    #author="Papa Che Dusko"
-    #author="George S"
-    #author="Sam Gentile"
-    #author="Noah"
+    #author = "Siavash '"
+    #author = "Papa Che Dusko"
+    #author = "George S"
+    #author = "Sam Gentile"
+    #author = "Noah"
 
     plot_slowness(
         model=model,
@@ -106,7 +106,7 @@ def plot_slowness(
 
     # Plots
     plot_pca_and_sfa_variances(sfa=sfa)
-    plot_temporal_label_importance(sfa=sfa, labels=zeroshot_labels)
+    plot_temporal_label_importance(sfa=sfa, labels=zeroshot_labels, df=df_agg)
     plot_sfa_weights(sfa=sfa, component=0)
     plot_sfa_weights(sfa=sfa, component=1)
 
@@ -141,19 +141,19 @@ def plot_sfa_weights(sfa: SFA, component: int = 0):
     )
 
 
-def plot_temporal_label_importance(sfa: SFA, labels: list[str]):
+def plot_temporal_label_importance(sfa: SFA, labels: list[str], df: DataFrame):
 
     weighted_weights = sfa.affine_parameters()[0] / sfa.delta_values_[:sfa.n_components, np.newaxis]
     label_importance = np.max(np.abs(weighted_weights), axis=0)
     idc = np.argsort(label_importance)
-    pca_weights = np.sum(np.abs(sfa.pca_whiten_.get_covariance()), axis=0)[idc]
+    label_variances = np.var(np.array(df['embedding']), axis=0)[idc]
 
     plt.figure()
-    plt.title("Temporal importance per label (color: PCA weight)")
+    plt.title("Temporal importance per label (color: variance)")
     plt.barh(
         [labels[i] for i in idc],
         label_importance[idc],
-        color=plt.get_cmap("Blues")(plt.Normalize(0, max(pca_weights))(pca_weights))
+        color=plt.get_cmap("Blues")(plt.Normalize(0, max(label_variances))(label_variances))
     )
 
 

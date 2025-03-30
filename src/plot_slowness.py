@@ -108,7 +108,7 @@ def plot_slowness(
     #print(f"Delta values: {sfa.delta_values_[:sfa.n_nontrivial_components_]}\n")
 
     # Plots
-    plot_pca_and_sfa_variances(sfa=sfa)
+    plot_explained_variances(sfa=sfa)
     plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=0)
     plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=1)
     plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=2)
@@ -124,13 +124,15 @@ def plot_slowness(
     plt.show()
 
 
-def plot_pca_and_sfa_variances(sfa: SFA):
-    #plt.figure()
-    _, ax1 = plt.subplots()
-    plt.title("Explained variance / delta")
-    ax1.plot(sfa.pca_whiten_.explained_variance_, label="variance")
-    ax2 = plt.twinx()
-    ax2.plot(sfa.delta_values_, label="delta")
+def plot_explained_variances(sfa: SFA):
+    plt.figure()
+    plt.title(f"PCA: Explained variance ({sfa.input_dim_} => {sfa.n_nontrivial_components_})")
+    plt.bar(
+        np.arange(sfa.input_dim_),
+        sfa.pca_whiten_.explained_variance_,
+        color=['royalblue'] * sfa.n_nontrivial_components_ + ['deepskyblue'] * (sfa.input_dim_ - sfa.n_nontrivial_components_),
+        label="variance",
+    )
 
 
 def plot_pca_weights(sfa: SFA, labels: List[str], dim: int = 0):

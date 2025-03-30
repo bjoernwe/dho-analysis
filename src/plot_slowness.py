@@ -47,6 +47,7 @@ zeroshot_labels: List[str] = [
     "conceptual", "non-conceptual",
     "tingling", "vibrations",
     "sleepiness", "alertness",
+    "direct experience",
 ]
 
 

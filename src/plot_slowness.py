@@ -20,7 +20,7 @@ from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 zeroshot_labels: List[str] = [
     "turtles",  # as baseline
 
-    "positive", "negative",
+    "positive", #"negative",
     "uncertainty", #"certainty",
     "past", #"future", #"present",
 
@@ -40,14 +40,14 @@ zeroshot_labels: List[str] = [
     "passivity", "calmness", "harmony",
     "equanimity", "metaphorical",
     "dissonance", "auditory",
-    "familiar", "passivity", "agency", "paradox", "specific", #"happiness",
-    "confusion", #"unfamiliar",
+    "passivity", "paradox", "specific", #"agency", "happiness",
+    "confusion", #"familiar", "unfamiliar",
     # "concrete",
     #"pain", #"sadness", "satisfaction",
     "space",
     "conceptual", "non-conceptual",
     "tingling", "vibrations",
-    "sleep", "sleepiness", "alertness", "energetic",
+    "sleep", "sleepiness", "alertness", "dullness", "energetic",
     "direct experience",
     "weird", "strange",
 ]

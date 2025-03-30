@@ -111,9 +111,12 @@ def plot_slowness(
     plot_pca_and_sfa_variances(sfa=sfa)
     plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=0)
     plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=1)
+    plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=2)
+    plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=3)
     plot_temporal_label_importance(sfa=sfa, labels=zeroshot_labels, df=df_agg)
     plot_sfa_weights(sfa=sfa, component=0)
     plot_sfa_weights(sfa=sfa, component=1)
+    plot_sfa_weights(sfa=sfa, component=2)
 
     # Plot slowest feature
     plt.figure()

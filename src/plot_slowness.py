@@ -20,26 +20,26 @@ zeroshot_labels = [
 
     "positive", "negative",
     "uncertainty", #"certainty",
-    "past", "future", #"present",
+    "past", #"future", #"present",
 
     # "empathetic" dataset
-    "hopeful", "sentimental", "surprised", "impressed", "anticipating", "trusting", "joyful", "excited",
-    #"feeling content", "being prepared",
+    "sentimental", "surprised", "impressed", "anticipating", "joyful", "excited",
+    "feeling content", #"being prepared",
     #"jealous", "guilty", "embarrassed", "ashamed", "nostalgic", "lonely", "afraid", "annoyed", "terrified", "proud",
     #"angry", "devastated", "caring", "apprehensive", "furious", "disgusted", "anxious", "sad", "confident",
-    #"disappointed", "faithful", "grateful",
+    #"disappointed", "faithful", "grateful", "trusting", "hopeful",
 
     # misc
     #"fire",
-    "spaciousness",
     "sensory", "visual", "somatic", "mental",
     "vague", "abstract", "measurable",
     "passivity", "calmness", "harmony",
     "equanimity", "metaphorical",
     "dissonance", "auditory",
-    "familiar", "happiness", "passivity", "satisfaction", "surprising", "agency", "paradox", "specific",
+    "familiar", "happiness", "passivity", "agency", "paradox", "specific",
     "confusion", "unfamiliar",
-    #"pain", "concrete", "sadness",
+    "concrete",
+    #"pain", "sadness", "satisfaction", "spaciousness", "surprising",
 ]
 
 
@@ -47,7 +47,15 @@ def main():
     #model = SentenceTransformerModel("all-MiniLM-L6-v2", batch_size=1000)
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=100)
     model = ZeroShotEmbeddingTransformer(model="MoritzLaurer/deberta-v3-base-zeroshot-v1.1-all-33", labels=zeroshot_labels, batch_size=1000)
-    plot_slowness(model=model)
+    plot_slowness(
+        model=model,
+        author="Linda ”Polly Ester” Ö",
+        #author="Siavash '",
+        #author="Papa Che Dusko",
+        #author="George S",
+        #author="Sam Gentile",
+        #author="Noah",
+    )
 
 
 def plot_slowness(
@@ -55,7 +63,7 @@ def plot_slowness(
         author: str = "Linda ”Polly Ester” Ö",
         time_aggregate: str = "1d",
         pca_min_explained: float = 1e-2,
-        sfa_component: int = 0,
+        sfa_component: int = 1,
 ):
 
     # Load practice logs
@@ -88,9 +96,10 @@ def plot_slowness(
     #print(f"Delta values: {sfa.delta_values_[:sfa.n_nontrivial_components_]}\n")
 
     # Plots
-    #plot_pca_and_sfa_variances(sfa=sfa)
+    plot_pca_and_sfa_variances(sfa=sfa)
     plot_temporal_label_importance(sfa=sfa, labels=zeroshot_labels)
     plot_sfa_weights(sfa=sfa, component=0)
+    plot_sfa_weights(sfa=sfa, component=1)
 
     # Plot slowest feature
     plt.figure()
@@ -99,10 +108,12 @@ def plot_slowness(
 
 
 def plot_pca_and_sfa_variances(sfa: SFA):
-    plt.figure()
-    plt.title("Explained variance")
-    plt.plot(sfa.pca_whiten_.explained_variance_)
-    plt.plot(sfa.delta_values_)
+    #plt.figure()
+    fig, ax1 = plt.subplots()
+    plt.title("Explained variance / delta")
+    ax1.plot(sfa.pca_whiten_.explained_variance_, label="variance")
+    ax2 = plt.twinx()
+    ax2.plot(sfa.delta_values_, label="delta")
 
 
 def plot_sfa_weights(sfa: SFA, component: int = 0):

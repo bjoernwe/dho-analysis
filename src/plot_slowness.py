@@ -19,15 +19,16 @@ zeroshot_labels = [
     "turtles",  # as baseline
 
     "positive", "negative",
-    "uncertainty", #"certainty",
+    "uncertainty", "certainty",
     "past", #"future", #"present",
 
     # "empathetic" dataset
-    "sentimental", "surprised", "impressed", "anticipating", "joyful", "excited",
+    "sentimental", "impressed", "joyful", "excited",
     "feeling content", #"being prepared",
     #"jealous", "guilty", "embarrassed", "ashamed", "nostalgic", "lonely", "afraid", "annoyed", "terrified", "proud",
-    #"angry", "devastated", "caring", "apprehensive", "furious", "disgusted", "anxious", "sad", "confident",
-    #"disappointed", "faithful", "grateful", "trusting", "hopeful",
+    #"angry", "devastated", "caring", "apprehensive", "furious", "disgusted", "anxious", "sad", "surprised",
+    "confident",
+    #"disappointed", "faithful", "grateful", "trusting", "hopeful", "anticipating",
 
     # misc
     #"fire",
@@ -37,9 +38,10 @@ zeroshot_labels = [
     "equanimity", "metaphorical",
     "dissonance", "auditory",
     "familiar", "happiness", "passivity", "agency", "paradox", "specific",
-    "confusion", "unfamiliar",
-    "concrete",
-    #"pain", "sadness", "satisfaction", "spaciousness", "surprising",
+    "confusion", #"unfamiliar",
+    # "concrete",
+    "pain", #"sadness", "satisfaction",
+    "spaciousness",
 ]
 
 
@@ -62,7 +64,7 @@ def plot_slowness(
         model: EmbeddingModelABC = SentenceTransformerModel("all-MiniLM-L6-v2"),
         author: str = "Linda ”Polly Ester” Ö",
         time_aggregate: str = "1d",
-        pca_min_explained: float = 1e-2,
+        pca_min_explained: float = 3e-2,
         sfa_component: int = 1,
 ):
 

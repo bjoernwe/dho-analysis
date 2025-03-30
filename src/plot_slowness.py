@@ -169,8 +169,9 @@ def plot_sfa_weights(sfa: SFA, component: int = 0):
 
 def plot_temporal_label_importance(sfa: SFA, labels: list[str], df: DataFrame):
 
-    weighted_weights = sfa.affine_parameters()[0] / sfa.delta_values_[:sfa.n_components, np.newaxis]
-    label_importance = np.max(np.abs(weighted_weights), axis=0)
+    normalized_components = sfa.affine_parameters()[0] / np.linalg.norm(sfa.affine_parameters()[0], axis=1)[:, np.newaxis]
+    weighted_components = normalized_components / (2 - sfa.delta_values_).clip(min=0)[:sfa.n_components, np.newaxis]
+    label_importance = np.max(np.abs(weighted_components), axis=0)
     idc = np.argsort(label_importance)
     label_variances = np.var(np.array(df['embedding']), axis=0)[idc]
 

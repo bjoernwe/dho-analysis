@@ -139,12 +139,14 @@ def plot_temporal_label_importance(sfa: SFA, labels: list[str]):
     weighted_weights = sfa.affine_parameters()[0] / sfa.delta_values_[:sfa.n_components, np.newaxis]
     label_importance = np.max(np.abs(weighted_weights), axis=0)
     idc = np.argsort(label_importance)
+    pca_weights = np.sum(np.abs(sfa.pca_whiten_.get_covariance()), axis=0)[idc]
 
     plt.figure()
-    plt.title("Temporal importance per label")
+    plt.title("Temporal importance per label (color: PCA weight)")
     plt.barh(
         [labels[i] for i in idc],
         label_importance[idc],
+        color=plt.get_cmap("Blues")(plt.Normalize(0, max(pca_weights))(pca_weights))
     )
 
 

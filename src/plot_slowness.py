@@ -19,6 +19,7 @@ from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 
 zeroshot_labels: List[str] = [
     "turtles",  # as baseline
+    "greeting",
 
     "positive", #"negative",
     "uncertainty", #"certainty",

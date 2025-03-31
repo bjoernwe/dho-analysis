@@ -18,20 +18,20 @@ from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 
 
 zeroshot_labels: List[str] = [
-    "turtles",  # as baseline
+    "turtles",  # sanity check
     "greeting",
 
-    "positive", #"negative",
+    "positive", "negative",
     "uncertainty", #"certainty",
-    "past", #"future", #"present",
+    "past", "present", #"future",
 
     # "empathetic" dataset
     "sentimental", "impressed", "excited", #"joyful",
     "feeling content", #"being prepared",
     #"jealous", "guilty", "embarrassed", "ashamed", "nostalgic", "lonely", "afraid", "annoyed", "terrified", "proud",
     #"angry", "devastated", "caring", "apprehensive", "furious", "disgusted", "anxious", "sad", "surprised",
-    #"confident",
-    #"disappointed", "faithful", "grateful", "trusting", "hopeful", "anticipating",
+    "confident",
+    "anticipating", "grateful", #"disappointed", "faithful", "trusting", "hopeful",
 
     # misc
     "fire",

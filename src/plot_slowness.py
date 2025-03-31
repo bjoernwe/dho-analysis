@@ -78,7 +78,7 @@ def plot_slowness(
         author: str = "Linda ”Polly Ester” Ö",
         time_aggregate: str = "1d",
         pca_min_explained: float = 3e-2,
-        sfa_components: int = 3,
+        n_sfa_components: int = 3,
 ):
 
     # Load practice logs
@@ -93,16 +93,16 @@ def plot_slowness(
     df_agg = aggregate_messages_by_time(df=df_sen.select(["date", "msg", "embedding"]), time_aggregate=time_aggregate)
 
     # Calc SFA for embeddings
-    sfa = SFA(n_components=3, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
+    sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
     sfa.fit(np.array(df_agg["embedding"]))
 
     # Apply SFA to embeddings
-    df_sen = add_sfa_from_embedding(df=df_sen, sfa=sfa, n_components=sfa_components)
-    df_agg = add_sfa_from_embedding(df=df_agg, sfa=sfa, n_components=sfa_components)
+    df_sen = add_sfa_from_embedding(df=df_sen, sfa=sfa, n_components=n_sfa_components)
+    df_agg = add_sfa_from_embedding(df=df_agg, sfa=sfa, n_components=n_sfa_components)
 
     # Print most representative sentences
     print_pca_sentences(df_sen=df_sen, sfa=sfa, n_pca_components=4)
-    print_sfa_sentences(df_sen=df_sen, n_sfa_components=sfa_components)
+    print_sfa_sentences(df_sen=df_sen, n_sfa_components=n_sfa_components)
 
     # Plots
     plot_explained_variances(sfa=sfa)

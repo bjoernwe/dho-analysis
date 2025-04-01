@@ -34,7 +34,7 @@ zeroshot_labels: List[str] = [
     "anticipating", "grateful", #"disappointed", "faithful", "trusting", "hopeful",
 
     # misc
-    "fire",
+    "fire", "yoga", "jhana",
     "meditation",
     "sensory", "visual", "somatic", "mental",
     "vague", "abstract", "measurable",
@@ -77,7 +77,7 @@ def plot_slowness(
         model: EmbeddingModelABC = SentenceTransformerModel("all-MiniLM-L6-v2"),
         author: str = "Linda ”Polly Ester” Ö",
         time_aggregate: str = "1d",
-        pca_min_explained: float = 3e-2,
+        pca_min_explained: float = 5e-2,
         n_sfa_components: int = 3,
 ):
 
@@ -106,11 +106,11 @@ def plot_slowness(
 
     # Plots
     plot_explained_variances(sfa=sfa)
-    plot_temporal_label_importance(sfa=sfa, labels=zeroshot_labels, df=df_agg)
     plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=0)
     plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=1)
     plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=2)
     plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=3)
+    #plot_temporal_label_importance(sfa=sfa, labels=zeroshot_labels, df=df_agg)
     plot_sfa_weights(sfa=sfa, component=0)
     plot_sfa_weights(sfa=sfa, component=1)
     plot_sfa_weights(sfa=sfa, component=2)

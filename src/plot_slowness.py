@@ -5,6 +5,7 @@ import numpy as np
 
 from polars import Series, DataFrame
 
+from scipy.fft import fft, fftfreq
 from sksfa import SFA
 
 from functions.calc_message_embeddings import add_message_embeddings
@@ -116,6 +117,7 @@ def plot_slowness(
     plot_sfa_weights(sfa=sfa, component=0)
     plot_sfa_weights(sfa=sfa, component=1)
     plot_sfa_weights(sfa=sfa, component=2)
+    plot_fft(df=df_agg)
 
     # Plot slowest feature
     plt.figure()
@@ -213,6 +215,17 @@ def plot_temporal_label_importance(sfa: SFA, labels: list[str], df: DataFrame):
         label_importance[idc],
         color=plt.get_cmap("Blues")(plt.Normalize(0, max(label_variances))(label_variances))
     )
+
+
+def plot_fft(df: DataFrame):
+
+    y = np.array(df.select(["SFA_0"]))[:,0]
+    N = y.shape[0]
+    yf = fft(y)
+    xf = fftfreq(N, 1)[:N//2]
+
+    plt.figure()
+    plt.plot(xf, 2.0/N * np.abs(yf[0:N//2]))
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from polars import Series, DataFrame
 
 from sksfa import SFA
@@ -50,7 +51,8 @@ zeroshot_labels: List[str] = [
     "tingling", "vibrations",
     "sleepiness", "alertness", "dullness", "energetic",
     "direct experience",
-    "weird",
+    "weird", "struggling", "being challenged",
+    "owning sth", "disowning sth",
 ]
 
 

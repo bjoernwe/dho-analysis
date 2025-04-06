@@ -2,10 +2,12 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
+import polars as pl
 
 from polars import Series, DataFrame
-
 from scipy.fft import fft, fftfreq
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF
 from sksfa import SFA
 
 from functions.calc_message_embeddings import add_message_embeddings
@@ -122,6 +124,7 @@ def plot_slowness(
     # Plot slowest feature
     plt.figure()
     plt.plot(df_agg.select(["date"]), df_agg.select(["SFA_0"]))
+    plot_gaussian_process(df=df_agg)
     plt.show()
 
 
@@ -226,6 +229,35 @@ def plot_fft(df: DataFrame):
 
     plt.figure()
     plt.plot(xf, 2.0/N * np.abs(yf[0:N//2]))
+
+
+def plot_gaussian_process(
+        df: DataFrame,
+        length_scale: float = 50.0,
+        alpha: float = 1,
+        sigma: float = 1,
+        length_scale_bounds: Tuple[float, float]=(10, 100),
+):
+
+    X_train = np.array(df["date"].cast(pl.Int64)) / (1000*1000*60*60*24)
+    y_train = np.array(df["SFA_0"])
+    kernel = sigma * RBF(length_scale=length_scale, length_scale_bounds=length_scale_bounds)
+    gaussian_process = GaussianProcessRegressor(
+        kernel=kernel, alpha=alpha, n_restarts_optimizer=9
+    )
+    gaussian_process.fit(X_train.reshape(-1, 1), y_train.reshape(-1, 1))
+    mean_prediction, std_prediction = gaussian_process.predict(X_train.reshape(-1, 1), return_std=True)
+
+    print(gaussian_process.kernel_)
+    plt.plot(X_train, mean_prediction, color="black")
+    plt.fill_between(
+        X_train.reshape(-1, 1).ravel(),
+        mean_prediction - 1.96 * std_prediction,
+        mean_prediction + 1.96 * std_prediction,
+        color="tab:orange",
+        alpha=0.5,
+        label=r"95% confidence interval",
+    )
 
 
 if __name__ == "__main__":

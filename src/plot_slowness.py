@@ -39,7 +39,7 @@ zeroshot_labels: List[str] = [
     "anticipating", "grateful", #"disappointed", "faithful", "trusting", "hopeful",
 
     # misc
-    "fire", "yoga", "jhana",
+    #"fire", "yoga", "jhana",
     "meditation",
     "sensory", "visual", "somatic", "mental",
     "vague", "abstract", "measurable",
@@ -56,7 +56,7 @@ zeroshot_labels: List[str] = [
     "sleepiness", "alertness", "dullness", "energetic",
     "direct experience",
     "weird", "struggling", "being challenged",
-    "owning sth", "disowning sth",
+    "owning sth",
 ]
 
 

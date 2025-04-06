@@ -3,6 +3,7 @@ from typing import List, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
+from matplotlib.ticker import FuncFormatter
 
 from polars import Series, DataFrame
 from scipy.fft import fft, fftfreq
@@ -227,7 +228,11 @@ def plot_fft(df: DataFrame):
     yf = fft(y)
     xf = fftfreq(N, 1)[:N//2]
 
-    plt.figure()
+    def x_labels(x, pos):
+        return f'{1 / x:.2f}'
+
+    _, ax = plt.subplots()
+    ax.xaxis.set_major_formatter(FuncFormatter(x_labels))
     plt.plot(xf, 2.0/N * np.abs(yf[0:N//2]))
 
 

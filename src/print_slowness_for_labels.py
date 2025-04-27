@@ -39,7 +39,7 @@ def print_slowness_gain_depending_on_dims(
     #df_mock_embeddings = add_mock_message_embeddings(df=df_sen, dims=len(zeroshot_labels))
 
     # Aggregate messages and embeddings time-wise
-    df_agg = aggregate_messages_by_time(df=df_embeddings.select(["date", "msg", "embedding"]), time_aggregate=time_aggregate)
+    df_agg = aggregate_messages_by_time(df=df_embeddings.select(["date", "msg", "embedding"]), every=time_aggregate)
     #df_agg_mock = aggregate_messages_by_time(df=df_mock_embeddings.select(["date", "msg", "embedding"]), time_aggregate=time_aggregate)
 
     # Calc slowness gains for embeddings

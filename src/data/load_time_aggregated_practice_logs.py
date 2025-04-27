@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import polars as pl
 
@@ -11,27 +13,31 @@ from models.SentenceTransformerModel import SentenceTransformerModel
 
 def main():
     df = load_time_aggregated_practice_logs(
-        time_aggregate="1w",
+        time_aggregate_every="1w",
         author="Linda ”Polly Ester” Ö",
         model=SentenceTransformerModel("all-MiniLM-L6-v2"),
     )
     print(df)
 
 
-def load_time_aggregated_practice_logs(time_aggregate: str, author: str, model: EmbeddingModelABC) -> DataFrame:
+def load_time_aggregated_practice_logs(
+        author: str,
+        model: EmbeddingModelABC,
+        time_aggregate_every: str,
+        time_aggregate_period: Optional[str] = None) -> DataFrame:
     df = load_practice_logs_for_author(author=author)
     df = add_message_embeddings(df=df, model=model)
-    return aggregate_messages_by_time(df=df, time_aggregate=time_aggregate)
+    return aggregate_messages_by_time(df=df, every=time_aggregate_every, period=time_aggregate_period)
 
 
-def aggregate_messages_by_time(df: DataFrame, time_aggregate: str) -> DataFrame:
+def aggregate_messages_by_time(df: DataFrame, every: str, period: Optional[str] = None) -> DataFrame:
     embedding_dim = df["embedding"].dtype.shape[0]
     return df.select(
         ["date", "msg", "embedding"]
     ).sort(
         "date"
     ).group_by_dynamic(
-        "date", every=time_aggregate
+        "date", every=every, period=period
     ).agg(
         pl.col("msg").str.concat(" "),
         pl.col("embedding").map_batches(

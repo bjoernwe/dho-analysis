@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -82,9 +82,10 @@ def main():
 def plot_slowness(
         model: EmbeddingModelABC = SentenceTransformerModel("all-MiniLM-L6-v2"),
         author: str = "Linda ”Polly Ester” Ö",
-        time_aggregate: str = "1d",
+        time_aggregate_every: str = "1d",
+        time_aggregate_period: Optional[str] = "1w",
         pca_min_explained: float = 5e-2,
-        n_sfa_components: int = 3,
+        n_sfa_components: int = 4,
 ):
 
     # Load practice logs
@@ -96,7 +97,11 @@ def plot_slowness(
     df_sen = add_message_embeddings(df=df_sen, model=model)
 
     # Aggregate messages and embeddings time-wise
-    df_agg = aggregate_messages_by_time(df=df_sen.select(["date", "msg", "embedding"]), time_aggregate=time_aggregate)
+    df_agg = aggregate_messages_by_time(
+        df=df_sen.select(["date", "msg", "embedding"]),
+        every=time_aggregate_every,
+        period=time_aggregate_period,
+    )
 
     # Calc SFA for embeddings
     sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)

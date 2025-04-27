@@ -14,7 +14,7 @@ def main():
 
 def print_example_slowness_value():
     model = SentenceTransformerModel("all-MiniLM-L6-v2")
-    df = load_time_aggregated_practice_logs(time_aggregate="1w", author="Linda ”Polly Ester” Ö", model=model)
+    df = load_time_aggregated_practice_logs(time_aggregate_every="1w", author="Linda ”Polly Ester” Ö", model=model)
     delta = calc_slowness_for_series(df.get_column("embedding"))
     print(delta)
 

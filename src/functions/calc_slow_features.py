@@ -18,7 +18,12 @@ def main():
 
 def print_example_slow_features():
     model = SentenceTransformerModel("all-MiniLM-L6-v2")
-    df = load_time_aggregated_practice_logs(time_aggregate="1w", author="Linda ”Polly Ester” Ö", model=model)
+    df = load_time_aggregated_practice_logs(
+        author="Linda ”Polly Ester” Ö",
+        model=model,
+        time_aggregate_every="1d",
+        time_aggregate_period="1w",
+    )
     df = add_sfa_columns(df, pca=.98)
     print(df)
 

@@ -28,7 +28,7 @@ zeroshot_labels: List[str] = [
 
     "positive", "negative",
     "uncertainty", #"certainty",
-    "past", "present", #"future",
+    #"past", "present", #"future",
 
     # "empathetic" dataset
     "sentimental", "impressed", "excited", #"joyful",
@@ -41,6 +41,8 @@ zeroshot_labels: List[str] = [
     # misc
     #"fire", "yoga", "jhana",
     "meditation",
+    #"body", "mind",
+    #"high concentration", "low concentration",
     "sensory", "visual", "somatic", "mental",
     "vague", "abstract", "measurable",
     "passivity", "calmness", "harmony",
@@ -51,11 +53,13 @@ zeroshot_labels: List[str] = [
     # "concrete",
     #"pain", #"sadness", "satisfaction",
     "space",
+    #"subjective", "objective",
     "conceptual", "non-conceptual",
     "tingling", "vibrations",
     "sleepiness", "alertness", "dullness", "energetic",
     "direct experience",
     "weird", "struggling", "being challenged",
+    #"necessity", "options",
     "owning sth",
 ]
 

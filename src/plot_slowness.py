@@ -86,9 +86,9 @@ def main():
 def plot_slowness(
         model: EmbeddingModelABC = SentenceTransformerModel("all-MiniLM-L6-v2"),
         author: str = "Linda ”Polly Ester” Ö",
-        time_aggregate_every: str = "1d",
-        time_aggregate_period: Optional[str] = "1w",
-        pca_min_explained: float = 5e-2,
+        time_aggregate_period_train: Optional[str] = "1w",
+        time_aggregate_period_plot: Optional[str] = "1d",
+        pca_min_explained: float = 2e-2,
         n_sfa_components: int = 4,
 ):
 
@@ -101,23 +101,30 @@ def plot_slowness(
     df_sen = add_message_embeddings(df=df_sen, model=model)
 
     # Aggregate messages and embeddings time-wise
-    df_agg = aggregate_messages_by_time(
+    df_train = aggregate_messages_by_time(
         df=df_sen.select(["date", "msg", "embedding"]),
-        every=time_aggregate_every,
-        period=time_aggregate_period,
+        every='1d',
+        period=time_aggregate_period_train,
+    )[:800]
+    df_plot = aggregate_messages_by_time(
+        df=df_sen.select(["date", "msg", "embedding"]),
+        every='1d',
+        period=time_aggregate_period_plot,
     )
 
     # Calc SFA for embeddings
     sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
-    sfa.fit(np.array(df_agg["embedding"]))
+    sfa.fit(np.array(df_train["embedding"]))
 
     # Apply SFA to embeddings
     df_sen = add_sfa_from_embedding(df=df_sen, sfa=sfa, n_components=n_sfa_components)
-    df_agg = add_sfa_from_embedding(df=df_agg, sfa=sfa, n_components=n_sfa_components)
+    df_train = add_sfa_from_embedding(df=df_train, sfa=sfa, n_components=n_sfa_components)
+    df_plot = add_sfa_from_embedding(df=df_plot, sfa=sfa, n_components=n_sfa_components)
 
     # Print most representative sentences
     print_pca_sentences(df_sen=df_sen, sfa=sfa, n_pca_components=4)
     print_sfa_sentences(df_sen=df_sen, n_sfa_components=n_sfa_components)
+    print(sfa.delta_values_[:n_sfa_components])
 
     # Plots
     plot_explained_variances(sfa=sfa)
@@ -129,12 +136,13 @@ def plot_slowness(
     plot_sfa_weights(sfa=sfa, component=0)
     plot_sfa_weights(sfa=sfa, component=1)
     plot_sfa_weights(sfa=sfa, component=2)
-    plot_fft(df=df_agg)
+    plot_fft(df=df_plot)
 
     # Plot slowest feature
     plt.figure()
-    plt.plot(df_agg.select(["date"]), df_agg.select(["SFA_0"]))
-    plot_gaussian_process(df=df_agg)
+    plt.plot(df_plot.select(["date"]), df_plot.select(["SFA_0"]))
+    plt.plot(df_train.select(["date"]), df_train.select(["SFA_0"]))
+    #plot_gaussian_process(df=df_agg)
     plt.show()
 
 

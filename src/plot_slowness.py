@@ -139,11 +139,11 @@ def plot_slowness(
     plot_fft(df=df_plot)
 
     # Plot slowest feature
-    for i in [0, 1]:
+    for i in [0]:
         plt.figure()
         plt.title(f"SFA #{i}")
-        plt.plot(df_plot.select(["date"]), df_plot.select([f"SFA_{i}"]))
-        plt.plot(df_train.select(["date"]), df_train.select([f"SFA_{i}"]))
+        plt.plot(df_plot.select(["date"]), df_plot.select([f"SFA_{i}"]), color="deepskyblue")
+        plt.plot(df_train.select(["date"]), df_train.select([f"SFA_{i}"]), color="navy")
     #plot_gaussian_process(df=df_agg)
     plt.show()
 

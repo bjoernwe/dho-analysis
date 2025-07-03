@@ -110,7 +110,7 @@ def plot_slowness(
         df=df_sen.select(["date", "msg", "embedding"]),
         every='1d',
         period=time_aggregate_period_plot,
-    )
+    )#[:100]
 
     # Calc SFA for embeddings
     sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)

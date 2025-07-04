@@ -16,6 +16,7 @@ from functions.calc_sentences import explode_msg_to_sentences
 from data.load_practice_logs_for_author import load_practice_logs_for_author
 from data.load_time_aggregated_practice_logs import aggregate_messages_by_time
 from models.ClassificationTransformer import ClassificationTransformer
+from models.CustomPCA import CustomPCA
 from models.EmbeddingModelABC import EmbeddingModelABC
 from config import SEED
 from models.SentenceTransformerModel import SentenceTransformerModel
@@ -89,7 +90,8 @@ def plot_slowness(
         time_aggregate_period_train: Optional[str] = "1w",
         time_aggregate_period_plot: Optional[str] = "1d",
         pca_min_explained: float = 2e-2,
-        n_sfa_components: int = 4,
+        n_pca_components: int = 4,
+        n_sfa_components: int = 2,
 ):
 
     # Load practice logs
@@ -112,6 +114,15 @@ def plot_slowness(
         period=time_aggregate_period_plot,
     )#[:100]
 
+    # Calc PCA for sentences
+    pca = CustomPCA(n_components=n_pca_components)
+    pca.fit(np.array(df_sen["embedding"]))
+
+    # Apply PCA to embeddings
+    df_sen = apply_pca_to_embedding(df=df_sen, pca=pca)
+    df_train = apply_pca_to_embedding(df=df_train, pca=pca)
+    df_plot = apply_pca_to_embedding(df=df_plot, pca=pca)
+
     # Calc SFA for embeddings
     sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
     sfa.fit(np.array(df_train["embedding"]))
@@ -122,30 +133,37 @@ def plot_slowness(
     df_plot = add_sfa_from_embedding(df=df_plot, sfa=sfa, n_components=n_sfa_components)
 
     # Print most representative sentences
-    print_pca_sentences(df_sen=df_sen, sfa=sfa, n_pca_components=4)
+    print_pca_sentences(df_sen=df_sen, n_components=n_pca_components)
     print_sfa_sentences(df_sen=df_sen, n_sfa_components=n_sfa_components)
     print(sfa.delta_values_[:n_sfa_components])
 
     # Plots
-    plot_explained_variances(sfa=sfa)
-    plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=0)
-    plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=1)
-    plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=2)
-    plot_pca_weights(sfa=sfa, labels=zeroshot_labels, dim=3)
-    #plot_temporal_label_importance(sfa=sfa, labels=zeroshot_labels, df=df_agg)
-    plot_sfa_weights(sfa=sfa, component=0)
-    plot_sfa_weights(sfa=sfa, component=1)
-    plot_sfa_weights(sfa=sfa, component=2)
-    plot_fft(df=df_plot)
+    plot_explained_variance_from_pca(pca=pca)
+    for i in range(n_pca_components):
+        plot_labels_for_pca_component(pca=pca, labels=zeroshot_labels, component=i)
+    for i in range(n_sfa_components):
+        plot_pca_weights_in_sfa(sfa=sfa, component=i)
+    for i in range(n_sfa_components):
+        plot_labels_for_sfa_component(sfa=sfa, pca=pca, labels=zeroshot_labels, component=i)
+    for i in range(n_sfa_components):
+        plot_fft(df=df_plot, component=i)
 
     # Plot slowest feature
-    for i in [0]:
+    for i in range(n_sfa_components):
         plt.figure()
         plt.title(f"SFA #{i}")
         plt.plot(df_plot.select(["date"]), df_plot.select([f"SFA_{i}"]), color="deepskyblue")
         plt.plot(df_train.select(["date"]), df_train.select([f"SFA_{i}"]), color="navy")
     #plot_gaussian_process(df=df_agg)
     plt.show()
+
+
+def apply_pca_to_embedding(df: DataFrame, pca: CustomPCA):
+    pca_features = pca.transform(np.array(df["embedding"]))
+    result = df.with_columns(
+        Series("embedding", pca_features)
+    )
+    return result
 
 
 def add_sfa_from_embedding(df: DataFrame, sfa: SFA, n_components: int):
@@ -156,7 +174,20 @@ def add_sfa_from_embedding(df: DataFrame, sfa: SFA, n_components: int):
     return result
 
 
-def print_pca_sentences(df_sen: DataFrame, sfa: SFA, n_pca_components: int):
+def print_pca_sentences(df_sen: DataFrame, n_components: int):
+    pca_features = np.array(df_sen["embedding"])
+    for i in range(n_components):
+        print("******************************")
+        print(f"Sentences for PCA component #{i}")
+        print("******************************\n")
+        df_sen_pca = df_sen.with_columns(Series(f"PCA_{i}", pca_features[:, i]))
+        for s in df_sen_pca.sort(f"PCA_{i}")["msg"].to_list()[-10:]: print(s)
+        print("\n...\n")
+        for s in df_sen_pca.sort(f"PCA_{i}")["msg"].to_list()[:10][::-1]: print(s)
+        print("\n")
+
+
+def print_pca_sentences_from_sfa(df_sen: DataFrame, sfa: SFA, n_pca_components: int):
     pca_features = sfa.pca_whiten_.transform(np.array(df_sen["embedding"]))
     for i in range(n_pca_components):
         print("******************************")
@@ -180,7 +211,19 @@ def print_sfa_sentences(df_sen: DataFrame, n_sfa_components: int):
         print("\n")
 
 
-def plot_explained_variances(sfa: SFA):
+def plot_explained_variance_from_pca(pca: CustomPCA):
+    output_dim, input_dim = pca.components_reduced_.shape
+    plt.figure()
+    plt.title(f"PCA: Explained variance ({input_dim} => {output_dim})")
+    plt.bar(
+        np.arange(input_dim),
+        pca.explained_variance_ratio_full_,
+        color=['royalblue'] * output_dim + ['deepskyblue'] * (input_dim - output_dim),
+        label="variance",
+    )
+
+
+def plot_explained_variance_from_sfa(sfa: SFA):
     plt.figure()
     plt.title(f"PCA: Explained variance ({sfa.input_dim_} => {sfa.n_nontrivial_components_})")
     plt.bar(
@@ -191,7 +234,41 @@ def plot_explained_variances(sfa: SFA):
     )
 
 
-def plot_pca_weights(sfa: SFA, labels: List[str], dim: int = 0):
+def plot_labels_for_pca_component(pca: CustomPCA, labels: List[str], component: int = 0):
+
+    weights_unsorted = pca.components_reduced_[component]
+    idc = np.argsort(weights_unsorted)
+    weights = weights_unsorted[idc]
+
+    plt.figure()
+    plt.title(f"Label weights in PCA component #{component}")
+    color_limit = max(abs(min(weights)), abs(max(weights)))
+    plt.barh(
+        np.array(labels)[idc],
+        weights,
+        color=plt.get_cmap("RdBu")(plt.Normalize(-color_limit, color_limit)(weights))
+    )
+
+
+def plot_labels_for_sfa_component(sfa: SFA, pca: CustomPCA, labels: List[str], component: int = 0):
+
+    pca_weights = pca.components_reduced_
+    sfa_weights = sfa.affine_parameters()[0]
+    weights_unsorted = sfa_weights.dot(pca_weights)[component]
+    idc = np.argsort(weights_unsorted)
+    weights = weights_unsorted[idc]
+
+    plt.figure()
+    plt.title(f"Label weights in SFA component #{component}")
+    color_limit = max(abs(min(weights)), abs(max(weights)))
+    plt.barh(
+        np.array(labels)[idc],
+        weights,
+        color=plt.get_cmap("PiYG")(plt.Normalize(-color_limit, color_limit)(weights))
+    )
+
+
+def plot_pca_weights_from_sfa(sfa: SFA, labels: List[str], dim: int = 0):
 
     weights_unsorted = sfa.pca_whiten_.components_[dim]
     idc = np.argsort(weights_unsorted)
@@ -207,20 +284,20 @@ def plot_pca_weights(sfa: SFA, labels: List[str], dim: int = 0):
     )
 
 
-def plot_sfa_weights(sfa: SFA, component: int = 0):
+def plot_pca_weights_in_sfa(sfa: SFA, component: int = 0):
 
-    sfa_weights_unsorted = sfa.affine_parameters()[0][component]
-    idc = np.argsort(sfa_weights_unsorted)
-    sfa_weights = sfa_weights_unsorted[idc]
+    sfa_weights = sfa.affine_parameters()[0][component]
 
-    plt.figure()
-    plt.title(f"Label weights in SFA component #{component}")
+    _, ax = plt.subplots()
+    ax.set_title(f"PCA weights in SFA component #{component}")
     color_limit = max(abs(min(sfa_weights)), abs(max(sfa_weights)))
-    plt.barh(
-        [zeroshot_labels[i] for i in idc],
+    labels = [f"PCA #{i}" for i in range(sfa.input_dim_)]
+    ax.barh(
+        labels,
         sfa_weights,
-        color=plt.get_cmap("PiYG")(plt.Normalize(-color_limit, color_limit)(sfa_weights))
+        color=plt.get_cmap("bwr")(plt.Normalize(-color_limit, color_limit)(sfa_weights))
     )
+    ax.invert_yaxis()
 
 
 def plot_temporal_label_importance(sfa: SFA, labels: list[str], df: DataFrame):
@@ -240,9 +317,9 @@ def plot_temporal_label_importance(sfa: SFA, labels: list[str], df: DataFrame):
     )
 
 
-def plot_fft(df: DataFrame):
+def plot_fft(df: DataFrame, component: int = 0):
 
-    y = np.array(df.select(["SFA_0"]))[:,0]
+    y = np.array(df.select([f"SFA_{component}"]))[:,0]
     N = y.shape[0]
     yf = fft(y)
     xf = fftfreq(N, 1)[:N//2]

@@ -91,7 +91,7 @@ def plot_slowness(
         time_aggregate_period_plot: Optional[str] = "1d",
         pca_min_explained: float = 2e-2,
         n_pca_components: int = 4,
-        n_sfa_components: int = 2,
+        n_sfa_components: int = 3,
 ):
 
     # Load practice logs
@@ -152,8 +152,9 @@ def plot_slowness(
     for i in range(n_sfa_components):
         plt.figure()
         plt.title(f"SFA #{i}")
-        plt.plot(df_plot.select(["date"]), df_plot.select([f"SFA_{i}"]), color="deepskyblue")
-        plt.plot(df_train.select(["date"]), df_train.select([f"SFA_{i}"]), color="navy")
+        #plt.plot(df_plot.select(["date"]), df_plot.select([f"SFA_{i}"]), color="deepskyblue", zorder=0)
+        plt.plot(df_train.select(["date"]), df_train.select([f"SFA_{i}"]), color="silver", zorder=1)
+        plt.scatter(df_train.select(["date"]), df_train.select([f"SFA_{i}"]), c=df_train.select(["SFA_2"]), cmap="PiYG", s=40, alpha=.8, zorder=2)
     #plot_gaussian_process(df=df_agg)
     plt.show()
 

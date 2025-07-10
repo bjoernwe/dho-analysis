@@ -31,6 +31,13 @@ zeroshot_labels: List[str] = [
     "uncertainty", #"certainty",
     #"past", "present", #"future",
 
+    # menstruation
+    # supplements
+    # illness
+    # fatigue
+    # depersonalization
+    # derealization
+
     # "empathetic" dataset
     "sentimental", "impressed", "excited", #"joyful",
     "feeling content", #"being prepared",
@@ -62,6 +69,7 @@ zeroshot_labels: List[str] = [
     "weird", "struggling", "being challenged",
     #"necessity", "options",
     "owning sth",
+    #"mystical experience",
 ]
 
 

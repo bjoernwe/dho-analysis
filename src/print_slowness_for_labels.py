@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from config import SEED
 from data.load_practice_logs_for_author import load_practice_logs_for_author
-from data.load_time_aggregated_practice_logs import aggregate_messages_by_time
+from data.load_time_aggregated_practice_logs import calc_aggregated_embedding_features
 from functions.calc_message_embeddings import add_message_embeddings
 from functions.calc_sentences import explode_msg_to_sentences
 from functions.calc_slowness_value import calc_slowness_for_array
@@ -39,7 +39,7 @@ def print_slowness_gain_depending_on_dims(
     #df_mock_embeddings = add_mock_message_embeddings(df=df_sen, dims=len(zeroshot_labels))
 
     # Aggregate messages and embeddings time-wise
-    df_agg = aggregate_messages_by_time(df=df_embeddings.select(["date", "msg", "embedding"]), every=time_aggregate)
+    df_agg = calc_aggregated_embedding_features(df=df_embeddings.select(["date", "msg", "embedding"]), every=time_aggregate)
     #df_agg_mock = aggregate_messages_by_time(df=df_mock_embeddings.select(["date", "msg", "embedding"]), time_aggregate=time_aggregate)
 
     # Calc slowness gains for embeddings

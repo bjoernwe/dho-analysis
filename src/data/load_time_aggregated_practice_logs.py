@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable, List
 
 import numpy as np
 import polars as pl
@@ -27,10 +27,19 @@ def load_time_aggregated_practice_logs(
         time_aggregate_period: Optional[str] = None) -> DataFrame:
     df = load_practice_logs_for_author(author=author)
     df = add_message_embeddings(df=df, model=model)
-    return aggregate_messages_by_time(df=df, every=time_aggregate_every, period=time_aggregate_period)
+    return calc_aggregated_embedding_features(df=df, every=time_aggregate_every, period=time_aggregate_period)
 
 
-def aggregate_messages_by_time(df: DataFrame, every: str, period: Optional[str] = None) -> DataFrame:
+def _default_feature_generator(l: List[np.array]) -> List[np.array]:
+    return [a.mean(axis=0) for a in l]
+
+
+def calc_aggregated_embedding_features(
+        df: DataFrame,
+        every: str,
+        period: Optional[str] = None,
+        f: Callable[[List[np.ndarray]], np.ndarray] = _default_feature_generator,
+) -> DataFrame:
     embedding_dim = df["embedding"].dtype.shape[0]
     return df.select(
         ["date", "msg", "embedding"]
@@ -41,14 +50,14 @@ def aggregate_messages_by_time(df: DataFrame, every: str, period: Optional[str] 
     ).agg(
         pl.col("msg").str.concat(" "),
         pl.col("embedding").map_batches(
-            _mean_pool,
+            lambda s: _wrapped_feature_generator(s, f),
             agg_list=True, return_dtype=pl.Array(pl.Float32, embedding_dim)
-        ).alias("embedding"),
+        ).alias("features"),
     )
 
 
-def _mean_pool(s: Series):
-    return np.vstack([np.array(x).mean(axis=0) for x in s])
+def _wrapped_feature_generator(s: Series, f: Callable[[List[np.array]], np.array]) -> np.array:
+    return np.vstack(f([np.array(s2) for s2 in s]))
 
 
 if __name__ == "__main__":

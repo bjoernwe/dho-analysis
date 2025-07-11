@@ -14,7 +14,7 @@ from sksfa import SFA
 from functions.calc_message_embeddings import add_message_embeddings
 from functions.calc_sentences import explode_msg_to_sentences
 from data.load_practice_logs_for_author import load_practice_logs_for_author
-from data.load_time_aggregated_practice_logs import aggregate_messages_by_time
+from data.load_time_aggregated_practice_logs import calc_aggregated_embedding_features
 from models.ClassificationTransformer import ClassificationTransformer
 from models.CustomPCA import CustomPCA
 from models.EmbeddingModelABC import EmbeddingModelABC
@@ -109,13 +109,16 @@ def plot_slowness(
     df_sen = explode_msg_to_sentences(df=df0)
     df_sen = add_message_embeddings(df=df_sen, model=model)
 
-    # Aggregate messages and embeddings time-wise
-    df_train = aggregate_messages_by_time(
+    # Calc (time-aggregated) features
+    df_sen = df_sen.with_columns(
+        pl.col("embedding").alias("features")
+    )
+    df_train = calc_aggregated_embedding_features(
         df=df_sen.select(["date", "msg", "embedding"]),
         every='1d',
         period=time_aggregate_period_train,
     )[:800]
-    df_plot = aggregate_messages_by_time(
+    df_plot = calc_aggregated_embedding_features(
         df=df_sen.select(["date", "msg", "embedding"]),
         every='1d',
         period=time_aggregate_period_plot,
@@ -126,18 +129,18 @@ def plot_slowness(
     pca.fit(np.array(df_sen["embedding"]))
 
     # Apply PCA to embeddings
-    df_sen = apply_pca_to_embedding(df=df_sen, pca=pca)
-    df_train = apply_pca_to_embedding(df=df_train, pca=pca)
-    df_plot = apply_pca_to_embedding(df=df_plot, pca=pca)
+    df_sen = apply_pca_to_features(df=df_sen, pca=pca)
+    df_train = apply_pca_to_features(df=df_train, pca=pca)
+    df_plot = apply_pca_to_features(df=df_plot, pca=pca)
 
     # Calc SFA for embeddings
     sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
-    sfa.fit(np.array(df_train["embedding"]))
+    sfa.fit(np.array(df_train["features"]))
 
     # Apply SFA to embeddings
-    df_sen = add_sfa_from_embedding(df=df_sen, sfa=sfa, n_components=n_sfa_components)
-    df_train = add_sfa_from_embedding(df=df_train, sfa=sfa, n_components=n_sfa_components)
-    df_plot = add_sfa_from_embedding(df=df_plot, sfa=sfa, n_components=n_sfa_components)
+    df_sen = add_sfa_from_features(df=df_sen, sfa=sfa, n_components=n_sfa_components)
+    df_train = add_sfa_from_features(df=df_train, sfa=sfa, n_components=n_sfa_components)
+    df_plot = add_sfa_from_features(df=df_plot, sfa=sfa, n_components=n_sfa_components)
 
     # Print most representative sentences
     print_pca_sentences(df_sen=df_sen, n_components=n_pca_components)
@@ -171,16 +174,16 @@ def plot_slowness(
     plt.show()
 
 
-def apply_pca_to_embedding(df: DataFrame, pca: CustomPCA):
-    pca_features = pca.transform(np.array(df["embedding"]))
+def apply_pca_to_features(df: DataFrame, pca: CustomPCA):
+    pca_features = pca.transform(np.array(df["features"]))
     result = df.with_columns(
-        Series("embedding", pca_features)
+        Series("features", pca_features)
     )
     return result
 
 
-def add_sfa_from_embedding(df: DataFrame, sfa: SFA, n_components: int):
-    sfa_features = sfa.transform(np.array(df["embedding"]))
+def add_sfa_from_features(df: DataFrame, sfa: SFA, n_components: int):
+    sfa_features = sfa.transform(np.array(df["features"]))
     result = DataFrame(df)
     for i in range(n_components):
         result = result.with_columns(Series(f"SFA_{i}", sfa_features[:, i]))
@@ -188,21 +191,8 @@ def add_sfa_from_embedding(df: DataFrame, sfa: SFA, n_components: int):
 
 
 def print_pca_sentences(df_sen: DataFrame, n_components: int):
-    pca_features = np.array(df_sen["embedding"])
+    pca_features = np.array(df_sen["features"])
     for i in range(n_components):
-        print("******************************")
-        print(f"Sentences for PCA component #{i}")
-        print("******************************\n")
-        df_sen_pca = df_sen.with_columns(Series(f"PCA_{i}", pca_features[:, i]))
-        for s in df_sen_pca.sort(f"PCA_{i}")["msg"].to_list()[-10:]: print(s)
-        print("\n...\n")
-        for s in df_sen_pca.sort(f"PCA_{i}")["msg"].to_list()[:10][::-1]: print(s)
-        print("\n")
-
-
-def print_pca_sentences_from_sfa(df_sen: DataFrame, sfa: SFA, n_pca_components: int):
-    pca_features = sfa.pca_whiten_.transform(np.array(df_sen["embedding"]))
-    for i in range(n_pca_components):
         print("******************************")
         print(f"Sentences for PCA component #{i}")
         print("******************************\n")

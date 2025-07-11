@@ -38,7 +38,7 @@ def calc_aggregated_embedding_features(
         df: DataFrame,
         every: str,
         period: Optional[str] = None,
-        f: Callable[[List[np.ndarray]], np.ndarray] = _default_feature_generator,
+        f: Callable[[List[np.ndarray]], List[np.ndarray]] = _default_feature_generator,
 ) -> DataFrame:
     embedding_dim = df["embedding"].dtype.shape[0]
     return df.select(
@@ -51,7 +51,7 @@ def calc_aggregated_embedding_features(
         pl.col("msg").str.concat(" "),
         pl.col("embedding").map_batches(
             lambda s: _wrapped_feature_generator(s, f),
-            agg_list=True, return_dtype=pl.Array(pl.Float32, embedding_dim)
+            agg_list=True, return_dtype=pl.Array(pl.Float32, 8)
         ).alias("features"),
     )
 

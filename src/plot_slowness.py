@@ -91,6 +91,44 @@ def main():
     )
 
 
+def _train_pca_and_sfa_and_calc_features(l: List[np.array], untrained_pca: CustomPCA, untrained_sfa: SFA) -> List[np.array]:
+
+    # we are going to modify the inputs!
+    pca = untrained_pca
+    sfa = untrained_sfa
+
+    # train PCA
+    full_features = np.vstack(l)
+    pca.fit(full_features)
+
+    # aggregate over time
+    mean_aggregates = [pca.transform(x).mean(axis=0) for x in l]
+    var_aggregates  = [pca.transform(x).var(axis=0) for x in l]
+    mean_var_aggregates = [np.hstack([ma, va]) for (ma, va) in zip(mean_aggregates, var_aggregates)]
+
+    # train SFA
+    full_aggregated_features = np.vstack([mean_var_aggregates])
+    sfa.fit(full_aggregated_features)
+
+    # Apply SFA
+    result = [x for x in mean_var_aggregates]
+    #result = [sfa.transform([x]) for x in result]
+    return result
+
+
+def _calc_features(l: List[np.array], pca: CustomPCA, sfa: SFA) -> List[np.array]:
+
+    # aggregate over time
+    mean_aggregates = [pca.transform(x).mean(axis=0) for x in l]
+    var_aggregates  = [pca.transform(x).var(axis=0) for x in l]
+    mean_var_aggregates = [np.hstack([ma, va]) for (ma, va) in zip(mean_aggregates, var_aggregates)]
+
+    # Apply SFA
+    result = [x for x in mean_var_aggregates]
+    #result = [sfa.transform([x]) for x in result]
+    return result
+
+
 def plot_slowness(
         model: EmbeddingModelABC = SentenceTransformerModel("all-MiniLM-L6-v2"),
         author: str = "Linda ”Polly Ester” Ö",
@@ -109,6 +147,10 @@ def plot_slowness(
     df_sen = explode_msg_to_sentences(df=df0)
     df_sen = add_message_embeddings(df=df_sen, model=model)
 
+    # PCA & SFA
+    pca = CustomPCA(n_components=n_pca_components)
+    sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
+
     # Calc (time-aggregated) features
     df_sen = df_sen.with_columns(
         pl.col("embedding").alias("features")
@@ -117,34 +159,32 @@ def plot_slowness(
         df=df_sen.select(["date", "msg", "embedding"]),
         every='1d',
         period=time_aggregate_period_train,
+        f=lambda x: _train_pca_and_sfa_and_calc_features(x, untrained_pca=pca, untrained_sfa=sfa)
     )[:800]
     df_plot = calc_aggregated_embedding_features(
         df=df_sen.select(["date", "msg", "embedding"]),
         every='1d',
         period=time_aggregate_period_plot,
+        f=lambda x: _calc_features(x, pca=pca, sfa=sfa)
     )#[:100]
 
-    # Calc PCA for sentences
-    pca = CustomPCA(n_components=n_pca_components)
-    pca.fit(np.array(df_sen["embedding"]))
-
     # Apply PCA to embeddings
-    df_sen = apply_pca_to_features(df=df_sen, pca=pca)
-    df_train = apply_pca_to_features(df=df_train, pca=pca)
-    df_plot = apply_pca_to_features(df=df_plot, pca=pca)
+    #df_sen = apply_pca_to_features(df=df_sen, pca=pca)
+    #df_train = apply_pca_to_features(df=df_train, pca=pca)
+    #df_plot = apply_pca_to_features(df=df_plot, pca=pca)
 
     # Calc SFA for embeddings
-    sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
-    sfa.fit(np.array(df_train["features"]))
+    #sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
+    #sfa.fit(np.array(df_train["features"]))
 
-    # Apply SFA to embeddings
-    df_sen = add_sfa_from_features(df=df_sen, sfa=sfa, n_components=n_sfa_components)
+    # Apply SFA to features
+    #df_sen = add_sfa_from_features(df=df_sen, sfa=sfa, n_components=n_sfa_components)
     df_train = add_sfa_from_features(df=df_train, sfa=sfa, n_components=n_sfa_components)
     df_plot = add_sfa_from_features(df=df_plot, sfa=sfa, n_components=n_sfa_components)
 
     # Print most representative sentences
-    print_pca_sentences(df_sen=df_sen, n_components=n_pca_components)
-    print_sfa_sentences(df_sen=df_sen, n_sfa_components=n_sfa_components)
+    #print_pca_sentences(df_sen=df_sen, n_components=n_pca_components)
+    #print_sfa_sentences(df_sen=df_sen, n_sfa_components=n_sfa_components)
     print(sfa.delta_values_[:n_sfa_components])
 
     # Plots
@@ -154,8 +194,8 @@ def plot_slowness(
         plot_labels_for_pca_component(pca=pca, labels=zeroshot_labels, component=i)
     for i in range(n_sfa_components):
         plot_pca_weights_in_sfa(sfa=sfa, component=i)
-    for i in range(n_sfa_components):
-        plot_labels_for_sfa_component(sfa=sfa, pca=pca, labels=zeroshot_labels, component=i)
+    #for i in range(n_sfa_components):
+    #    plot_labels_for_sfa_component(sfa=sfa, pca=pca, labels=zeroshot_labels, component=i)
     for i in range(n_sfa_components):
         plot_fft(df=df_plot, component=i)
 

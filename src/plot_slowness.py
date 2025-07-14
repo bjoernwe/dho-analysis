@@ -29,14 +29,15 @@ zeroshot_labels: List[str] = [
 
     "positive", "negative",
     "uncertainty", #"certainty",
-    #"past", "present", #"future",
+    "past", "present", "future",
 
-    # menstruation
-    # supplements
-    # illness
-    # fatigue
-    # depersonalization
-    # derealization
+    #"menstruation",
+    #"supplements",
+    #"medication",
+    #"illness",
+    #"fatigue",
+    #"depersonalization",
+    #"derealization",
 
     # "empathetic" dataset
     "sentimental", "impressed", "excited", #"joyful",

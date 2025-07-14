@@ -71,6 +71,7 @@ zeroshot_labels: List[str] = [
     #"necessity", "options",
     "owning sth",
     #"mystical experience",
+    #"weak sense of self", "strong sense of self",
 ]
 
 

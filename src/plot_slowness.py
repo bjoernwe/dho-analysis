@@ -81,16 +81,18 @@ def main():
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=100)
     model = ZeroShotEmbeddingTransformer(model="MoritzLaurer/deberta-v3-base-zeroshot-v1.1-all-33", labels=zeroshot_labels, batch_size=1000)
 
-    author = "Linda ”Polly Ester” Ö"
-    #author = "Siavash '"
-    #author = "Papa Che Dusko"
-    #author = "George S"
-    #author = "Sam Gentile"
-    #author = "Noah"
+    authors = [
+        "Linda ”Polly Ester” Ö",
+        "Siavash '",
+        "Papa Che Dusko",
+        "George S",
+        "Sam Gentile",
+        "Noah",
+    ]
 
     plot_slowness(
         model=model,
-        author=author,
+        author=authors[0],
     )
 
 

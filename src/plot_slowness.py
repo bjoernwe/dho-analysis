@@ -318,7 +318,7 @@ def plot_pca_weights_in_sfa(sfa: SFA, component: int = 0):
 def plot_label_importance_from_pca(pca: CustomPCA, labels: list[str]):
     component_weights = np.sqrt(pca.explained_variance_ratio_full_[:pca.n_components_reduced_])
     weighted_components = (pca.components_reduced_.T * component_weights).T
-    label_importance = np.max(weighted_components, axis=0)
+    label_importance = np.max(np.abs(weighted_components), axis=0)
     idc = np.argsort(label_importance)
 
     sorted_label_importance = label_importance[idc]

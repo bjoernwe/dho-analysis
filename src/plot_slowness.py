@@ -25,41 +25,39 @@ from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 
 zeroshot_labels: List[str] = [
     "turtles",  # sanity check
-    "greeting",
 
     "positive", "negative",
-    "uncertainty", #"certainty",
-    #"past", "present", #"future",
+    "uncertainty", "certainty",
+    "past", "present", #"future",
 
-    # menstruation
-    # supplements
-    # illness
-    # fatigue
-    # depersonalization
-    # derealization
+    "menstruation",
+    #"supplements",
+    #"medication",
+    "illness",
+    "fatigue",
+    "depersonalization",
+    "derealization",
 
     # "empathetic" dataset
-    "sentimental", "impressed", "excited", #"joyful",
-    "feeling content", #"being prepared",
-    #"jealous", "guilty", "embarrassed", "ashamed", "nostalgic", "lonely", "afraid", "annoyed", "terrified", "proud",
-    #"angry", "devastated", "caring", "apprehensive", "furious", "disgusted", "anxious", "sad", "surprised",
-    "confident",
-    "anticipating", "grateful", #"disappointed", "faithful", "trusting", "hopeful",
+    "sentimental", "impressed", "excited", "joyful", "feeling content",
+    "apprehensive", "anxious", "surprised",
+    "confident", "grateful", "disappointed", "faithful", "hopeful",
+    # "jealous", "furious", "lonely", "angry", "ashamed", "terrified", "caring", "afraid", "disgusted", "proud"
+    # "anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed"
 
     # misc
     #"fire", "yoga", "jhana",
-    "meditation",
     "body", "mind",
     "high concentration", "low concentration",
     "sensory", "visual", "somatic", "mental",
     "vague", "abstract", "measurable",
     "passivity", "calmness", "harmony",
     "equanimity", "metaphorical",
-    "dissonance", "auditory",
-    "passivity", "paradox", "specific", #"agency", "happiness",
-    "confusion", #"familiar", "unfamiliar",
-    # "concrete",
-    "pain", #"sadness", "satisfaction",
+    "dissonance", "auditory", #"sounds", "mental images",
+    "passivity", "paradox", "specific", "happiness",
+    #"sense of agency", "lack of agency",
+    "confusion",
+    "pain", "sadness", "satisfaction",
     "space",
     "subjective", "objective",
     "conceptual", "non-conceptual",
@@ -67,9 +65,8 @@ zeroshot_labels: List[str] = [
     "sleepiness", "alertness", "dullness", "energetic",
     "direct experience",
     "weird", "struggling", "being challenged",
-    #"necessity", "options",
-    "owning sth",
-    #"mystical experience",
+    "mystical experience",
+    "weak sense of self", #"strong sense of self",
 ]
 
 
@@ -79,16 +76,18 @@ def main():
     #model = ClassificationTransformer(model="SamLowe/roberta-base-go_emotions", batch_size=100)
     model = ZeroShotEmbeddingTransformer(model="MoritzLaurer/deberta-v3-base-zeroshot-v1.1-all-33", labels=zeroshot_labels, batch_size=1000)
 
-    author = "Linda ”Polly Ester” Ö"
-    #author = "Siavash '"
-    #author = "Papa Che Dusko"
-    #author = "George S"
-    #author = "Sam Gentile"
-    #author = "Noah"
+    authors = [
+        "Linda ”Polly Ester” Ö",
+        "Siavash '",
+        "Papa Che Dusko",
+        "George S",
+        "Sam Gentile",
+        "Noah",
+    ]
 
     plot_slowness(
         model=model,
-        author=author,
+        author=authors[0],
     )
 
 
@@ -147,6 +146,7 @@ def plot_slowness(
 
     # Plots
     plot_explained_variance_from_pca(pca=pca)
+    plot_label_importance_from_pca(pca=pca, labels=zeroshot_labels)
     for i in range(n_pca_components):
         plot_labels_for_pca_component(pca=pca, labels=zeroshot_labels, component=i)
     for i in range(n_sfa_components):
@@ -313,11 +313,31 @@ def plot_pca_weights_in_sfa(sfa: SFA, component: int = 0):
     ax.invert_yaxis()
 
 
+def plot_label_importance_from_pca(pca: CustomPCA, labels: list[str]):
+
+    component_weights = np.sqrt(pca.explained_variance_ratio_full_[:pca.n_components_reduced_])
+    weighted_components = (pca.components_reduced_.T * component_weights).T
+    label_importance = np.max(np.abs(weighted_components), axis=0)
+    idc = np.argsort(label_importance)
+
+    sorted_label_importance = label_importance[idc]
+    sorted_labels = [labels[i] for i in idc]
+
+    plt.figure()
+    plt.title("Max label weight in first PCA components")
+    plt.barh(
+        sorted_labels,
+        sorted_label_importance,
+        color=plt.get_cmap("Blues")(plt.Normalize(0, max(sorted_label_importance))(sorted_label_importance))
+    )
+
+
 def plot_temporal_label_importance(sfa: SFA, labels: list[str], df: DataFrame):
 
     normalized_components = sfa.affine_parameters()[0] / np.linalg.norm(sfa.affine_parameters()[0], axis=1)[:, np.newaxis]
     weighted_components = normalized_components * (2 - sfa.delta_values_).clip(min=0)[:sfa.n_components, np.newaxis]
     label_importance = np.max(np.abs(weighted_components), axis=0)
+
     idc = np.argsort(label_importance)
     label_variances = np.var(np.array(df['embedding']), axis=0)[idc]
 

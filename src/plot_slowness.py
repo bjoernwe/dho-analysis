@@ -39,25 +39,23 @@ zeroshot_labels: List[str] = [
     "derealization",
 
     # "empathetic" dataset
-    "sentimental", "impressed", "excited", "joyful",
-    "feeling content",
-    "guilty", "nostalgic", "annoyed",
+    "sentimental", "impressed", "excited", "joyful", "feeling content",
     "apprehensive", "anxious", "surprised",
     "confident", "grateful", "disappointed", "faithful", "hopeful",
     # "jealous", "furious", "lonely", "angry", "ashamed", "terrified", "caring", "afraid", "disgusted", "proud"
-    # "anticipating", "embarrassed", "devastated", "trusting", "sad"
+    # "anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed"
 
     # misc
     #"fire", "yoga", "jhana",
-    "meditation",
     "body", "mind",
     "high concentration", "low concentration",
     "sensory", "visual", "somatic", "mental",
     "vague", "abstract", "measurable",
     "passivity", "calmness", "harmony",
     "equanimity", "metaphorical",
-    "dissonance", "auditory",
-    "passivity", "paradox", "specific", "agency", "happiness",
+    "dissonance", "auditory", #"sounds", "mental images",
+    "passivity", "paradox", "specific", "happiness",
+    #"sense of agency", "lack of agency",
     "confusion",
     "pain", "sadness", "satisfaction",
     "space",

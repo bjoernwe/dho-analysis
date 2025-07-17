@@ -151,6 +151,7 @@ def plot_slowness(
 
     # Plots
     plot_explained_variance_from_pca(pca=pca)
+    plot_label_importance_from_pca(pca=pca, labels=zeroshot_labels)
     for i in range(n_pca_components):
         plot_labels_for_pca_component(pca=pca, labels=zeroshot_labels, component=i)
     for i in range(n_sfa_components):
@@ -317,11 +318,30 @@ def plot_pca_weights_in_sfa(sfa: SFA, component: int = 0):
     ax.invert_yaxis()
 
 
+def plot_label_importance_from_pca(pca: CustomPCA, labels: list[str]):
+    component_weights = np.sqrt(pca.explained_variance_ratio_full_[:pca.n_components_reduced_])
+    weighted_components = (pca.components_reduced_.T * component_weights).T
+    label_importance = np.max(weighted_components, axis=0)
+    idc = np.argsort(label_importance)
+
+    sorted_label_importance = label_importance[idc]
+    sorted_labels = [labels[i] for i in idc]
+
+    plt.figure()
+    plt.title("Max label weight in first PCA components")
+    plt.barh(
+        sorted_labels,
+        sorted_label_importance,
+        color=plt.get_cmap("Grays")(plt.Normalize(0, max(sorted_label_importance))(sorted_label_importance))
+    )
+
+
 def plot_temporal_label_importance(sfa: SFA, labels: list[str], df: DataFrame):
 
     normalized_components = sfa.affine_parameters()[0] / np.linalg.norm(sfa.affine_parameters()[0], axis=1)[:, np.newaxis]
     weighted_components = normalized_components * (2 - sfa.delta_values_).clip(min=0)[:sfa.n_components, np.newaxis]
     label_importance = np.max(np.abs(weighted_components), axis=0)
+
     idc = np.argsort(label_importance)
     label_variances = np.var(np.array(df['embedding']), axis=0)[idc]
 

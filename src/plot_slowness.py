@@ -134,7 +134,6 @@ def plot_slowness(
         author: str = "Linda ”Polly Ester” Ö",
         time_aggregate_period_train: Optional[str] = "1w",
         time_aggregate_period_plot: Optional[str] = "1d",
-        pca_min_explained: float = 2e-2,
         n_pca_components: int = 4,
         n_sfa_components: int = 2,
 ):
@@ -149,7 +148,7 @@ def plot_slowness(
 
     # PCA & SFA
     pca = CustomPCA(n_components=n_pca_components)
-    sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
+    sfa = SFA(n_components=n_sfa_components, fill_mode='zero', random_state=SEED)
 
     # Calc (time-aggregated) features
     df_sen = df_sen.with_columns(

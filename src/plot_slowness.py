@@ -25,27 +25,27 @@ from models.ZeroShotEmbeddingTransformer import ZeroShotEmbeddingTransformer
 
 zeroshot_labels: List[str] = [
     "turtles",  # sanity check
-    "greeting",
 
     "positive", "negative",
-    "uncertainty", #"certainty",
-    "past", "present", "future",
+    "uncertainty", "certainty",
+    "past", "present", #"future",
 
     "menstruation",
-    "supplements",
-    "medication",
+    #"supplements",
+    #"medication",
     "illness",
     "fatigue",
     "depersonalization",
     "derealization",
 
     # "empathetic" dataset
-    "sentimental", "impressed", "excited", #"joyful",
-    "feeling content", #"being prepared",
-    #"jealous", "guilty", "embarrassed", "ashamed", "nostalgic", "lonely", "afraid", "annoyed", "terrified", "proud",
-    #"angry", "devastated", "caring", "apprehensive", "furious", "disgusted", "anxious", "sad", "surprised",
-    "confident",
-    "anticipating", "grateful", #"disappointed", "faithful", "trusting", "hopeful",
+    "sentimental", "impressed", "excited", "joyful",
+    "feeling content",
+    "guilty", "nostalgic", "annoyed",
+    "apprehensive", "anxious", "surprised",
+    "confident", "grateful", "disappointed", "faithful", "hopeful",
+    # "jealous", "furious", "lonely", "angry", "ashamed", "terrified", "caring", "afraid", "disgusted", "proud"
+    # "anticipating", "embarrassed", "devastated", "trusting", "sad"
 
     # misc
     #"fire", "yoga", "jhana",
@@ -57,10 +57,9 @@ zeroshot_labels: List[str] = [
     "passivity", "calmness", "harmony",
     "equanimity", "metaphorical",
     "dissonance", "auditory",
-    "passivity", "paradox", "specific", #"agency", "happiness",
-    "confusion", #"familiar", "unfamiliar",
-    # "concrete",
-    "pain", #"sadness", "satisfaction",
+    "passivity", "paradox", "specific", "agency", "happiness",
+    "confusion",
+    "pain", "sadness", "satisfaction",
     "space",
     "subjective", "objective",
     "conceptual", "non-conceptual",
@@ -68,10 +67,8 @@ zeroshot_labels: List[str] = [
     "sleepiness", "alertness", "dullness", "energetic",
     "direct experience",
     "weird", "struggling", "being challenged",
-    #"necessity", "options",
-    "owning sth",
     "mystical experience",
-    "weak sense of self", "strong sense of self",
+    "weak sense of self", #"strong sense of self",
 ]
 
 

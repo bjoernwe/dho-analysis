@@ -42,8 +42,8 @@ zeroshot_labels: List[str] = [
     "sentimental", "impressed", "excited", "joyful", "feeling content",
     "apprehensive", "anxious", "surprised",
     "confident", "grateful", "disappointed", "faithful", "hopeful",
-    # "jealous", "furious", "lonely", "angry", "ashamed", "terrified", "caring", "afraid", "disgusted", "proud"
-    # "anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed"
+    #"jealous", "furious", "lonely", "angry", "ashamed", "terrified", "caring", "afraid", "disgusted", "proud",
+    #"anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed",
 
     # misc
     #"fire", "yoga", "jhana",
@@ -53,9 +53,9 @@ zeroshot_labels: List[str] = [
     "vague", "abstract", "measurable",
     "passivity", "calmness", "harmony",
     "equanimity", "metaphorical",
-    "dissonance", "auditory", #"sounds", "mental images",
+    "dissonance", "auditory", "sounds", "mental images",
     "passivity", "paradox", "specific", "happiness",
-    #"sense of agency", "lack of agency",
+    "sense of agency", "lack of agency",
     "confusion",
     "pain", "sadness", "satisfaction",
     "space",
@@ -66,7 +66,7 @@ zeroshot_labels: List[str] = [
     "direct experience",
     "weird", "struggling", "being challenged",
     "mystical experience",
-    "weak sense of self", #"strong sense of self",
+    "weak sense of self", "strong sense of self",
 ]
 
 

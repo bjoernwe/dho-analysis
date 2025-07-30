@@ -27,27 +27,27 @@ zeroshot_labels: List[str] = [
     "turtles",  # sanity check
 
     "positive", "negative",
-    "uncertainty", "certainty",
-    "past", "present", #"future",
+    "uncertainty", #"certainty",
+    "past", #"present", #"future",
 
     "menstruation",
     #"supplements",
     #"medication",
-    "illness",
+    #"illness",
     "fatigue",
     "depersonalization",
     "derealization",
 
     # "empathetic" dataset
-    "sentimental", "impressed", "excited", "joyful", "feeling content",
-    "apprehensive", "anxious", "surprised",
-    "confident", "grateful", "disappointed", "faithful", "hopeful",
+    "impressed", "excited", "joyful", "feeling content",
+    "apprehensive", "anxious",
+    "confident", "faithful", "hopeful", #surprised", "sentimental", "disappointed",
     #"jealous", "furious", "lonely", "angry", "ashamed", "terrified", "caring", "afraid", "disgusted", "proud",
-    #"anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed",
+    #"anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed", "grateful",
 
     # misc
     #"fire", "yoga", "jhana",
-    "body", "mind",
+    "body", #"mind",
     "high concentration", "low concentration",
     "sensory", "visual", "somatic", "mental",
     "vague", "abstract", "measurable",
@@ -59,6 +59,8 @@ zeroshot_labels: List[str] = [
     "confusion",
     "pain", "sadness", "satisfaction",
     "space",
+    "pain", "satisfaction", #"sadness",
+    #"space",
     "subjective", "objective",
     "conceptual", "non-conceptual",
     "tingling", "vibrations",
@@ -66,7 +68,7 @@ zeroshot_labels: List[str] = [
     "direct experience",
     "weird", "struggling", "being challenged",
     "mystical experience",
-    "weak sense of self", "strong sense of self",
+    "weak sense of self", #"strong sense of self",
     "dualities", "polarities", "opposites",
 ]
 

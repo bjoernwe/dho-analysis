@@ -57,8 +57,6 @@ zeroshot_labels: List[str] = [
     "passivity", "paradox", "specific", "happiness",
     "sense of agency", "lack of agency",
     "confusion",
-    "pain", "sadness", "satisfaction",
-    "space",
     "pain", "satisfaction", #"sadness",
     #"space",
     "subjective", "objective",

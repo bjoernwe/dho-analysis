@@ -67,6 +67,7 @@ zeroshot_labels: List[str] = [
     "weird", "struggling", "being challenged",
     "mystical experience",
     "weak sense of self", "strong sense of self",
+    "dualities", "polarities", "opposites",
 ]
 
 

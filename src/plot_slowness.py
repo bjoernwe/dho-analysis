@@ -27,6 +27,7 @@ zeroshot_labels: List[str] = [
     "turtles",  # sanity check
 
     "positive", "negative",
+    "good mood", "bad mood",
     "uncertainty", #"certainty",
     "past", #"present", #"future",
 
@@ -52,7 +53,7 @@ zeroshot_labels: List[str] = [
     "sensory", "visual", "somatic", "mental",
     "vague", "abstract", "measurable",
     "passivity", "calmness", "harmony",
-    "equanimity", "metaphorical",
+    "metaphorical",
     "dissonance", "auditory", "sounds", "mental images",
     "passivity", "paradox", "specific", "happiness",
     "sense of agency", "lack of agency",
@@ -68,6 +69,7 @@ zeroshot_labels: List[str] = [
     "mystical experience",
     "weak sense of self", #"strong sense of self",
     "dualities", "polarities", "opposites",
+    "equanimity", "equanimity wrt negative", "equanimity wrt opposites",
 ]
 
 

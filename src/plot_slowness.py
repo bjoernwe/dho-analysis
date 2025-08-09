@@ -180,7 +180,13 @@ def apply_pca_to_embedding(df: DataFrame, pca: CustomPCA):
 
 
 def add_sfa_from_embedding(df: DataFrame, sfa: SFA):
-    return map_numpy_column(df=df, column_name="embedding", target_columns="SFA", f=lambda x: sfa.transform(x))
+    return map_numpy_column(
+        df=df,
+        column_name="embedding",
+        target_column="SFA",
+        split_target_columns=True,
+        f=lambda x: sfa.transform(x),
+    )
 
 
 def print_pca_sentences(df_sen: DataFrame, n_components: int):

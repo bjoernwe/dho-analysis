@@ -15,6 +15,7 @@ from functions.calc_message_embeddings import add_message_embeddings
 from functions.calc_sentences import explode_msg_to_sentences
 from data.load_practice_logs_for_author import load_practice_logs_for_author
 from data.load_time_aggregated_practice_logs import aggregate_messages_by_time
+from functions.utils import map_numpy_column
 from models.ClassificationTransformer import ClassificationTransformer
 from models.CustomPCA import CustomPCA
 from models.EmbeddingModelABC import EmbeddingModelABC
@@ -175,11 +176,7 @@ def plot_slowness(
 
 
 def apply_pca_to_embedding(df: DataFrame, pca: CustomPCA):
-    pca_features = pca.transform(np.array(df["embedding"]))
-    result = df.with_columns(
-        Series("embedding", pca_features)
-    )
-    return result
+    return map_numpy_column(df=df, column_name="embedding", f=lambda x: pca.transform(x))
 
 
 def add_sfa_from_embedding(df: DataFrame, sfa: SFA, n_components: int):

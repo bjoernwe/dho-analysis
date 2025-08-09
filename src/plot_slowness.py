@@ -139,9 +139,9 @@ def plot_slowness(
     sfa.fit(np.array(df_train["embedding"]))
 
     # Apply SFA to embeddings
-    df_sen = add_sfa_from_embedding(df=df_sen, sfa=sfa, n_components=n_sfa_components)
-    df_train = add_sfa_from_embedding(df=df_train, sfa=sfa, n_components=n_sfa_components)
-    df_plot = add_sfa_from_embedding(df=df_plot, sfa=sfa, n_components=n_sfa_components)
+    df_sen = add_sfa_from_embedding(df=df_sen, sfa=sfa)
+    df_train = add_sfa_from_embedding(df=df_train, sfa=sfa)
+    df_plot = add_sfa_from_embedding(df=df_plot, sfa=sfa)
 
     # Print most representative sentences
     print_pca_sentences(df_sen=df_sen, n_components=n_pca_components)
@@ -179,12 +179,8 @@ def apply_pca_to_embedding(df: DataFrame, pca: CustomPCA):
     return map_numpy_column(df=df, column_name="embedding", f=lambda x: pca.transform(x))
 
 
-def add_sfa_from_embedding(df: DataFrame, sfa: SFA, n_components: int):
-    sfa_features = sfa.transform(np.array(df["embedding"]))
-    result = DataFrame(df)
-    for i in range(n_components):
-        result = result.with_columns(Series(f"SFA_{i}", sfa_features[:, i]))
-    return result
+def add_sfa_from_embedding(df: DataFrame, sfa: SFA):
+    return map_numpy_column(df=df, column_name="embedding", target_columns="SFA", f=lambda x: sfa.transform(x))
 
 
 def print_pca_sentences(df_sen: DataFrame, n_components: int):

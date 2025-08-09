@@ -1,3 +1,4 @@
+import math
 from typing import List, Tuple, Optional
 
 import matplotlib.pyplot as plt
@@ -360,6 +361,8 @@ def plot_fft(df: DataFrame, component: int = 0):
     xf = fftfreq(N, 1)[:N//2]
 
     def x_labels(x, pos):
+        if math.isclose(x, 0, abs_tol=1e-6):
+            return 'inf'
         return f'{1 / x:.2f}'
 
     _, ax = plt.subplots()

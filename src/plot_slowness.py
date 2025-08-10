@@ -1,3 +1,4 @@
+import math
 from typing import List, Tuple, Optional
 
 import matplotlib.pyplot as plt
@@ -15,6 +16,7 @@ from functions.calc_message_embeddings import add_message_embeddings
 from functions.calc_sentences import explode_msg_to_sentences
 from data.load_practice_logs_for_author import load_practice_logs_for_author
 from data.load_time_aggregated_practice_logs import aggregate_messages_by_time
+from functions.utils import map_numpy_column
 from models.ClassificationTransformer import ClassificationTransformer
 from models.CustomPCA import CustomPCA
 from models.EmbeddingModelABC import EmbeddingModelABC
@@ -112,6 +114,11 @@ def plot_slowness(
     df_sen = explode_msg_to_sentences(df=df0)
     df_sen = add_message_embeddings(df=df_sen, model=model)
 
+    # Calc & apply PCA for sentences
+    pca = CustomPCA(n_components=n_pca_components)
+    pca.fit(np.array(df_sen["embedding"]))
+    df_sen = apply_pca_to_embedding(df=df_sen, pca=pca)
+
     # Aggregate messages and embeddings time-wise
     df_train = aggregate_messages_by_time(
         df=df_sen.select(["date", "msg", "embedding"]),
@@ -124,23 +131,14 @@ def plot_slowness(
         period=time_aggregate_period_plot,
     )#[:100]
 
-    # Calc PCA for sentences
-    pca = CustomPCA(n_components=n_pca_components)
-    pca.fit(np.array(df_sen["embedding"]))
-
-    # Apply PCA to embeddings
-    df_sen = apply_pca_to_embedding(df=df_sen, pca=pca)
-    df_train = apply_pca_to_embedding(df=df_train, pca=pca)
-    df_plot = apply_pca_to_embedding(df=df_plot, pca=pca)
-
     # Calc SFA for embeddings
     sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)
     sfa.fit(np.array(df_train["embedding"]))
 
     # Apply SFA to embeddings
-    df_sen = add_sfa_from_embedding(df=df_sen, sfa=sfa, n_components=n_sfa_components)
-    df_train = add_sfa_from_embedding(df=df_train, sfa=sfa, n_components=n_sfa_components)
-    df_plot = add_sfa_from_embedding(df=df_plot, sfa=sfa, n_components=n_sfa_components)
+    df_sen = add_sfa_from_embedding(df=df_sen, sfa=sfa)
+    df_train = add_sfa_from_embedding(df=df_train, sfa=sfa)
+    df_plot = add_sfa_from_embedding(df=df_plot, sfa=sfa)
 
     # Print most representative sentences
     print_pca_sentences(df_sen=df_sen, n_components=n_pca_components)
@@ -175,19 +173,17 @@ def plot_slowness(
 
 
 def apply_pca_to_embedding(df: DataFrame, pca: CustomPCA):
-    pca_features = pca.transform(np.array(df["embedding"]))
-    result = df.with_columns(
-        Series("embedding", pca_features)
+    return map_numpy_column(df=df, column_name="embedding", f=lambda x: pca.transform(x))
+
+
+def add_sfa_from_embedding(df: DataFrame, sfa: SFA):
+    return map_numpy_column(
+        df=df,
+        column_name="embedding",
+        target_column="SFA",
+        split_target_columns=True,
+        f=lambda x: sfa.transform(x),
     )
-    return result
-
-
-def add_sfa_from_embedding(df: DataFrame, sfa: SFA, n_components: int):
-    sfa_features = sfa.transform(np.array(df["embedding"]))
-    result = DataFrame(df)
-    for i in range(n_components):
-        result = result.with_columns(Series(f"SFA_{i}", sfa_features[:, i]))
-    return result
 
 
 def print_pca_sentences(df_sen: DataFrame, n_components: int):
@@ -361,6 +357,8 @@ def plot_fft(df: DataFrame, component: int = 0):
     xf = fftfreq(N, 1)[:N//2]
 
     def x_labels(x, pos):
+        if math.isclose(x, 0, abs_tol=1e-6):
+            return 'inf'
         return f'{1 / x:.2f}'
 
     _, ax = plt.subplots()

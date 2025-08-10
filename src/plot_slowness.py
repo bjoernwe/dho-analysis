@@ -114,6 +114,11 @@ def plot_slowness(
     df_sen = explode_msg_to_sentences(df=df0)
     df_sen = add_message_embeddings(df=df_sen, model=model)
 
+    # Calc & apply PCA for sentences
+    pca = CustomPCA(n_components=n_pca_components)
+    pca.fit(np.array(df_sen["embedding"]))
+    df_sen = apply_pca_to_embedding(df=df_sen, pca=pca)
+
     # Aggregate messages and embeddings time-wise
     df_train = aggregate_messages_by_time(
         df=df_sen.select(["date", "msg", "embedding"]),
@@ -125,15 +130,6 @@ def plot_slowness(
         every='1d',
         period=time_aggregate_period_plot,
     )#[:100]
-
-    # Calc PCA for sentences
-    pca = CustomPCA(n_components=n_pca_components)
-    pca.fit(np.array(df_sen["embedding"]))
-
-    # Apply PCA to embeddings
-    df_sen = apply_pca_to_embedding(df=df_sen, pca=pca)
-    df_train = apply_pca_to_embedding(df=df_train, pca=pca)
-    df_plot = apply_pca_to_embedding(df=df_plot, pca=pca)
 
     # Calc SFA for embeddings
     sfa = SFA(n_components=n_sfa_components, robustness_cutoff=pca_min_explained, fill_mode='zero', random_state=SEED)

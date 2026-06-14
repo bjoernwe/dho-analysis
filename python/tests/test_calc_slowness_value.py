@@ -4,7 +4,7 @@ from unittest import TestCase
 import numpy as np
 
 from config import SEED
-from functions.calc_slowness_value import calc_slowness_for_array
+from functions import calc_slowness_for_array
 
 
 class Test(TestCase):

@@ -8,20 +8,12 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "polars (==1.31.0)",
-    "sentence-transformers (>=3.4.1,<4.0.0)",
-    "sklearn-sfa (>=0.1.6,<0.2.0)",
-    "matplotlib (==3.10.3)",
-    "scikit-learn (==1.7.0)",
-    "joblib (>=1.4.2,<2.0.0)",
-    "nltk (>=3.9.1,<4.0.0)",
-    "tqdm (>=4.67.1,<5.0.0)",
+    "polars==1.31.0",
+    "sentence-transformers>=3.4.1,<4.0.0",
+    "sklearn-sfa>=0.1.6,<0.2.0",
+    "matplotlib==3.10.3",
+    "scikit-learn==1.7.0",
+    "joblib>=1.4.2,<2.0.0",
+    "nltk>=3.9.1,<4.0.0",
+    "tqdm>=4.67.1,<5.0.0",
 ]
-
-[tool.poetry]
-package-mode = false
-
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"

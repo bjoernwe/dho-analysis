@@ -15,6 +15,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("ai.djl.huggingface:tokenizers:0.33.0")
     implementation("com.microsoft.onnxruntime:onnxruntime_gpu:1.22.0")
+    implementation("org.jetbrains.kotlinx:dataframe:0.15.0")
 }
 
 application {

@@ -1,6 +1,7 @@
 package models
 
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer
+import ai.djl.util.PairList
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtException
@@ -12,7 +13,8 @@ import kotlin.math.exp
 
 class ZeroShotClassifier(modelDir: Path, modelFile: String = "model.onnx") : AutoCloseable {
 
-    private val tokenizer = HuggingFaceTokenizer.newInstance(modelDir)
+    // Padding is required so batchEncode can stack pairs of unequal length into one rectangular tensor.
+    private val tokenizer = HuggingFaceTokenizer.newInstance(modelDir, mapOf("padding" to "true"))
     private val env = OrtEnvironment.getEnvironment()
     private val session: OrtSession
     private val entailmentIndex: Int
@@ -32,23 +34,41 @@ class ZeroShotClassifier(modelDir: Path, modelFile: String = "model.onnx") : Aut
         contradictionIndex = c
     }
 
-    // Mirrors Python: classifier([msg], [label], multi_label=True)
-    fun score(text: String, label: String): Float {
-        val encoding = tokenizer.encode(text, "This example is $label.")
-        val shape = longArrayOf(1L, encoding.ids.size.toLong())
+    fun score(text: String, label: String): Float = scoreBatch(listOf(text), label).first()
+
+    fun scoreBatch(texts: List<String>, label: String): List<Float> {
+        if (texts.isEmpty()) return emptyList()
+
+        val hypothesis = "This example is $label."
+        val encodings = tokenizer.batchEncode(PairList(texts, texts.map { hypothesis }))
+
+        val batchSize = encodings.size
+        val seqLen = encodings[0].ids.size
+        val shape = longArrayOf(batchSize.toLong(), seqLen.toLong())
+
+        val idsBuffer = LongBuffer.allocate(batchSize * seqLen)
+        val maskBuffer = LongBuffer.allocate(batchSize * seqLen)
+        val useTypeIds = "token_type_ids" in session.inputNames
+        val typeBuffer = if (useTypeIds) LongBuffer.allocate(batchSize * seqLen) else null
+        for (encoding in encodings) {
+            idsBuffer.put(encoding.ids)
+            maskBuffer.put(encoding.attentionMask)
+            typeBuffer?.put(encoding.typeIds)
+        }
+        idsBuffer.flip()
+        maskBuffer.flip()
+        typeBuffer?.flip()
 
         val inputs = buildMap<String, OnnxTensor> {
-            put("input_ids", OnnxTensor.createTensor(env, LongBuffer.wrap(encoding.ids), shape))
-            put("attention_mask", OnnxTensor.createTensor(env, LongBuffer.wrap(encoding.attentionMask), shape))
-            if ("token_type_ids" in session.inputNames) {
-                put("token_type_ids", OnnxTensor.createTensor(env, LongBuffer.wrap(encoding.typeIds), shape))
-            }
+            put("input_ids", OnnxTensor.createTensor(env, idsBuffer, shape))
+            put("attention_mask", OnnxTensor.createTensor(env, maskBuffer, shape))
+            if (typeBuffer != null) put("token_type_ids", OnnxTensor.createTensor(env, typeBuffer, shape))
         }
 
         return session.run(inputs).use { result ->
             @Suppress("UNCHECKED_CAST")
-            val logits = (result.get("logits").get().value as Array<FloatArray>)[0]
-            twoWaySoftmax(logits[entailmentIndex], logits[contradictionIndex])
+            val logits = result.get("logits").get().value as Array<FloatArray>
+            logits.map { twoWaySoftmax(it[entailmentIndex], it[contradictionIndex]) }
         }
     }
 

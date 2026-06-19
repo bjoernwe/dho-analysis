@@ -16,6 +16,7 @@ dependencies {
     implementation("ai.djl.huggingface:tokenizers:0.33.0")
     implementation("com.microsoft.onnxruntime:onnxruntime_gpu:1.22.0")
     implementation("org.jetbrains.kotlinx:dataframe:0.15.0")
+    implementation("org.xerial:sqlite-jdbc:3.46.1.3")
 }
 
 application {

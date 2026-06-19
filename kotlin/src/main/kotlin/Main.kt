@@ -1,3 +1,5 @@
+import cache.ScoreCache
+import cache.scoreBatchCached
 import kotlin.io.path.Path
 import kotlin.time.measureTime
 import models.ZeroShotClassifier
@@ -17,7 +19,17 @@ fun main() {
     val rounds = 20
     val count = texts.size * labels.size * rounds
 
-    ZeroShotClassifier(Path("models/MoritzLaurer/ModernBERT-large-zeroshot-v2.0"), modelFile = "model_fp16.onnx").use { model ->
+    val modelName = "ModernBERT-large-zeroshot-v2.0"
+
+    val cache = ScoreCache(
+        dbPath = Path("cache/scores.db"),
+        modelKey = modelName,
+    )
+
+    ZeroShotClassifier(
+        modelDir = Path("models/MoritzLaurer").resolve(modelName),
+        modelFile = "model_fp16.onnx"
+    ).use { model ->
         // Warm up so session/provider init isn't counted in the timings below.
         model.score(texts[0], labels[0])
 

@@ -50,35 +50,22 @@ class CachingZeroShotClassifier(
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    override fun scoreBatch(texts: List<String>, label: String): List<Float> {
-        if (texts.isEmpty()) return emptyList()
-
-        val cached = getAll(texts, label)
-        val missing = texts.filterNot { it in cached }.distinct()
-        val fresh = if (missing.isEmpty()) emptyMap() else
-            missing.zip(delegate.scoreBatch(missing, label)).toMap().also { putAll(it, label) }
-
-        return texts.map { cached[it] ?: fresh[it]!! }
+    // Compute normalized form and SHA-256 hash for a list of texts
+    private fun computeHashes(distinctTexts: List<String>): Map<String, String> {
+        return distinctTexts.associateWith { text ->
+            val normalized = normalize(text)
+            sha256Hex(normalized)
+        }
     }
 
-    private fun getAll(texts: List<String>, label: String): Map<String, Float> {
-        if (texts.isEmpty()) return emptyMap()
-
-        val distinctTexts = texts.distinct()
-
-        // Map original text -> normalized -> hash
-        val normalizedByText = distinctTexts.associateWith { normalize(it) }
-        val hashByText = normalizedByText.mapValues { sha256Hex(it.value) }
-
-        // Chunk hashes to avoid hitting SQLite's parameter limit. Use configured chunkSize.
-        val maxPerChunk = chunkSize
-
-        val allHashes = hashByText.values.distinct()
+    // Query the DB in chunks for a list of hashes and return map hash -> score
+    @Synchronized
+    private fun queryHashesInChunks(hashes: List<String>, label: String): Map<String, Float> {
+        if (hashes.isEmpty()) return emptyMap()
         val hashToScore = mutableMapOf<String, Float>()
-
         var i = 0
-        while (i < allHashes.size) {
-            val chunk = allHashes.subList(i, minOf(i + maxPerChunk, allHashes.size))
+        while (i < hashes.size) {
+            val chunk = hashes.subList(i, minOf(i + chunkSize, hashes.size))
             val placeholders = chunk.joinToString(separator = ",") { "?" }
             val sql = "SELECT text_hash, score FROM scores WHERE model = ? AND label = ? AND text_hash IN ($placeholders)"
             connection.prepareStatement(sql).use { stmt ->
@@ -93,20 +80,13 @@ class CachingZeroShotClassifier(
             }
             i += chunk.size
         }
-
-        val result = mutableMapOf<String, Float>()
-        for (t in distinctTexts) {
-            val h = hashByText[t]!!
-            if (hashToScore.containsKey(h)) {
-                result[t] = hashToScore[h]!!
-            }
-        }
-        return result
+        return hashToScore
     }
 
-    private fun putAll(scores: Map<String, Float>, label: String) {
+    // Insert or replace scores (thread-safe)
+    @Synchronized
+    private fun insertScores(scores: Map<String, Float>, label: String) {
         if (scores.isEmpty()) return
-
         val sql = "INSERT OR REPLACE INTO scores (model, label, text_hash, text, score) VALUES (?, ?, ?, ?, ?)"
         connection.autoCommit = false
         try {
@@ -128,6 +108,37 @@ class CachingZeroShotClassifier(
             connection.autoCommit = true
         }
     }
+
+    override fun scoreBatch(texts: List<String>, label: String): List<Float> {
+        if (texts.isEmpty()) return emptyList()
+
+        val cached = getAll(texts, label)
+        val missing = texts.filterNot { it in cached }.distinct()
+        val fresh = if (missing.isEmpty()) emptyMap() else
+            missing.zip(delegate.scoreBatch(missing, label)).toMap().also { insertScores(it, label) }
+
+        return texts.map { cached[it] ?: fresh[it]!! }
+    }
+
+    private fun getAll(texts: List<String>, label: String): Map<String, Float> {
+        if (texts.isEmpty()) return emptyMap()
+
+        val distinctTexts = texts.distinct()
+        val hashByText = computeHashes(distinctTexts)
+        val allHashes = hashByText.values.distinct()
+        val hashToScore = queryHashesInChunks(allHashes, label)
+
+        val result = mutableMapOf<String, Float>()
+        for (t in distinctTexts) {
+            val h = hashByText[t]!!
+            if (hashToScore.containsKey(h)) {
+                result[t] = hashToScore[h]!!
+            }
+        }
+        return result
+    }
+
+    // putAll removed; use insertScores directly
 
     override fun close() {
         delegate.close()

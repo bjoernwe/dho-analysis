@@ -1,8 +1,6 @@
-import cache.ScoreCache
-import cache.scoreBatchCached
 import kotlin.io.path.Path
 import kotlin.time.measureTime
-import models.ZeroShotClassifier
+import models.OnnxZeroShotClassifier
 
 fun main() {
     val texts = listOf(
@@ -21,12 +19,7 @@ fun main() {
 
     val modelName = "ModernBERT-large-zeroshot-v2.0"
 
-    val cache = ScoreCache(
-        dbPath = Path("cache/scores.db"),
-        modelKey = modelName,
-    )
-
-    ZeroShotClassifier(
+    OnnxZeroShotClassifier(
         modelDir = Path("models/MoritzLaurer").resolve(modelName),
         modelFile = "model_fp16.onnx"
     ).use { model ->

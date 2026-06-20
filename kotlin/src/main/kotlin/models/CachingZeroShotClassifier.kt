@@ -1,14 +1,18 @@
-package cache
+package models
 
-import models.ZeroShotClassifier
 import java.nio.file.Path
 import java.sql.Connection
 import java.sql.DriverManager
+import kotlin.collections.iterator
 import kotlin.io.path.createParentDirectories
 
-// Persists (model, label, text) -> score so repeated experiments don't re-run inference
-// for sentence/label pairs that have already been scored.
-class ScoreCache(dbPath: Path, private val modelKey: String) : AutoCloseable {
+// Delegates to another ZeroShotClassifier, persisting (model, label, text) -> score in SQLite
+// so repeated experiments don't re-run inference for sentence/label pairs already scored.
+class CachingZeroShotClassifier(
+    private val delegate: ZeroShotClassifier,
+    dbPath: Path,
+    private val modelKey: String,
+) : ZeroShotClassifier {
 
     private val connection: Connection
 
@@ -30,7 +34,18 @@ class ScoreCache(dbPath: Path, private val modelKey: String) : AutoCloseable {
         }
     }
 
-    fun getAll(texts: List<String>, label: String): Map<String, Float> {
+    override fun scoreBatch(texts: List<String>, label: String): List<Float> {
+        if (texts.isEmpty()) return emptyList()
+
+        val cached = getAll(texts, label)
+        val missing = texts.filterNot { it in cached }.distinct()
+        val fresh = if (missing.isEmpty()) emptyMap() else
+            missing.zip(delegate.scoreBatch(missing, label)).toMap().also { putAll(it, label) }
+
+        return texts.map { cached[it] ?: fresh[it]!! }
+    }
+
+    private fun getAll(texts: List<String>, label: String): Map<String, Float> {
         if (texts.isEmpty()) return emptyMap()
 
         val distinctTexts = texts.distinct()
@@ -50,7 +65,7 @@ class ScoreCache(dbPath: Path, private val modelKey: String) : AutoCloseable {
         }
     }
 
-    fun putAll(scores: Map<String, Float>, label: String) {
+    private fun putAll(scores: Map<String, Float>, label: String) {
         if (scores.isEmpty()) return
 
         val sql = "INSERT OR REPLACE INTO scores (model, label, text, score) VALUES (?, ?, ?, ?)"
@@ -72,18 +87,8 @@ class ScoreCache(dbPath: Path, private val modelKey: String) : AutoCloseable {
         }
     }
 
-    override fun close() = connection.close()
-}
-
-// Cache-aware scoring, kept outside ZeroShotClassifier so the model class stays free of
-// persistence concerns.
-fun ZeroShotClassifier.scoreBatchCached(cache: ScoreCache, texts: List<String>, label: String): List<Float> {
-    if (texts.isEmpty()) return emptyList()
-
-    val cached = cache.getAll(texts, label)
-    val missing = texts.filterNot { it in cached }.distinct()
-    val fresh = if (missing.isEmpty()) emptyMap() else
-        missing.zip(scoreBatch(missing, label)).toMap().also { cache.putAll(it, label) }
-
-    return texts.map { cached[it] ?: fresh[it]!! }
+    override fun close() {
+        delegate.close()
+        connection.close()
+    }
 }

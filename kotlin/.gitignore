@@ -1,0 +1,24 @@
+/cache/
+/models/
+
+# Gradle
+.gradle/
+/build/
+
+# Kotlin
+.kotlin/
+
+# IDE
+.idea/
+!.idea/codeStyles/
+!.idea/codeStyles/codeStyleConfig.xml
+!.idea/inspectionProfiles/
+!.idea/inspectionProfiles/Project_Default.xml
+!.idea/runConfigurations/
+*.iml
+*.ipr
+*.iws
+
+# Misc
+*.log
+.DS_Store

@@ -7,13 +7,14 @@ import org.jetbrains.kotlinx.dataframe.api.filter
 import org.jetbrains.kotlinx.dataframe.api.map
 import org.jetbrains.kotlinx.dataframe.api.with
 import org.jetbrains.kotlinx.dataframe.io.readJsonStr
+import models.SentenceSplitter
 import java.io.File
 
-fun readMessages(path: String = "data/messages.jsonl"): DataFrame<Message> {
+fun readMessages(splitter: SentenceSplitter, path: String = "data/messages.jsonl"): DataFrame<Message> {
     val json = readLinesAsJsonArray(path)
     val rawMessages = DataFrame.readJsonStr(json).convertTo<RawMessage>()
     val threadAuthors = rawMessages.filter { it.isFirstInThread }.map { it.threadId to it.author }.toMap()
-    val messages = DataFrame.readJsonStr(json).convertTo<Message> { fill { threadAuthor }.with { threadAuthors[threadId] ?: "n/a" } }
+    val messages = DataFrame.readJsonStr(json).convertTo<Message> { fill { threadAuthor }.with { threadAuthors[threadId] ?: "n/a" }; fill { sentences }.with { splitter.split(msg ?: "") } }
     return messages
 }
 

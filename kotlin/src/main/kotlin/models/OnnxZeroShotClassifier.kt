@@ -21,14 +21,14 @@ class OnnxZeroShotClassifier(modelDir: Path, modelFile: String = "model.onnx") :
     private val contradictionIndex: Int
 
     init {
-        val opts = OrtSession.SessionOptions().apply {
-            try {
-                addCUDA(0)
-            } catch (e: OrtException) {
-                System.err.println("CUDA unavailable (${e.message}), falling back to CPU")
-            }
+        val modelPath = modelDir.resolve(modelFile).toString()
+        session = try {
+            val opts = OrtSession.SessionOptions().apply { addCUDA(0) }
+            env.createSession(modelPath, opts)
+        } catch (e: OrtException) {
+            System.err.println("CUDA unavailable (${e.message}), falling back to CPU")
+            env.createSession(modelPath, OrtSession.SessionOptions())
         }
-        session = env.createSession(modelDir.resolve(modelFile).toString(), opts)
         val (e, c) = resolveNliIndices(modelDir)
         entailmentIndex = e
         contradictionIndex = c

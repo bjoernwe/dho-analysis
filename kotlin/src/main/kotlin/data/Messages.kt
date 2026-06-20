@@ -8,9 +8,13 @@ import org.jetbrains.kotlinx.dataframe.api.map
 import org.jetbrains.kotlinx.dataframe.api.with
 import org.jetbrains.kotlinx.dataframe.io.readJsonStr
 import models.SentenceSplitter
+import models.defaultSplitter
 import java.io.File
 
-fun readMessages(splitter: SentenceSplitter, path: String = "data/messages.jsonl"): DataFrame<Message> {
+// Convenience overload that constructs/uses the shared default splitter.
+fun readMessages(path: String = "data/messages.jsonl"): DataFrame<Message> = readMessages(path, defaultSplitter)
+
+fun readMessages(path: String, splitter: SentenceSplitter = defaultSplitter): DataFrame<Message> {
     val rawMessages = readRawMessages(path)
     val threadAuthors = rawMessages.filter { it.isFirstInThread }.map { it.threadId to it.author }.toMap()
     val json = readLinesAsJsonArray(path)

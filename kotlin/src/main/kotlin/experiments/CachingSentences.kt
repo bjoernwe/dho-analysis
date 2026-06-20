@@ -4,12 +4,11 @@ import data.readMessages
 import kotlin.io.path.Path
 import models.CachingZeroShotClassifier
 import models.OnnxZeroShotClassifier
-import models.OpenNlpSentenceSplitter
 import org.jetbrains.kotlinx.dataframe.DataColumn
 
 fun main() {
-    val splitter = OpenNlpSentenceSplitter()
-    val messages = readMessages(splitter)
+
+    val messages = readMessages()
     @Suppress("UNCHECKED_CAST")
     val sentences = (messages["sentences"] as DataColumn<List<String>>).toList().flatten()
 

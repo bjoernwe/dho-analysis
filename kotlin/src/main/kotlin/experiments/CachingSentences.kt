@@ -11,7 +11,7 @@ fun main() {
 
     val messages = readMessages()
     @Suppress("UNCHECKED_CAST")
-    val sentences = (messages["sentences"] as DataColumn<List<String>>).toList().flatten()
+    val sentences = (messages["sentences"] as DataColumn<List<String>>).toList().flatten().sortedBy { it.length }
 
     val modelName = "ModernBERT-large-zeroshot-v2.0"
     val delegate = OnnxZeroShotClassifier(
@@ -24,7 +24,7 @@ fun main() {
     CachingZeroShotClassifier(delegate, Path("cache/scores.db"), modelName).use { model ->
         ProgressBar("Scoring", (labels.size * sentences.size).toLong()).use { progressBar ->
             for (label in labels) {
-                for (batch in sentences.chunked(200)) {
+                for (batch in sentences.chunked(1_000)) {
                     val scores = model.scoreBatch(batch, label)
                     /*for ((sentence, score) in batch.zip(scores)) {
                         println("%-12s %.3f %-80s".format(label, score, sentence))

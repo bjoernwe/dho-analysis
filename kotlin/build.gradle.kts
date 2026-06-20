@@ -22,6 +22,15 @@ dependencies {
     implementation("me.tongfei:progressbar:0.10.1")
 }
 
+// Add test dependencies
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
 application {
     mainClass.set("examples.ClassificationKt")
 }

@@ -3,6 +3,9 @@ package models
 import java.nio.file.Path
 import java.sql.Connection
 import java.sql.DriverManager
+import java.security.MessageDigest
+import java.text.Normalizer
+import java.nio.charset.StandardCharsets
 import kotlin.collections.iterator
 import kotlin.io.path.createParentDirectories
 
@@ -12,6 +15,7 @@ class CachingZeroShotClassifier(
     private val delegate: ZeroShotClassifier,
     dbPath: Path,
     private val modelKey: String,
+    private val chunkSize: Int = 997,
 ) : ZeroShotClassifier {
 
     private val connection: Connection
@@ -19,19 +23,31 @@ class CachingZeroShotClassifier(
     init {
         dbPath.createParentDirectories()
         connection = DriverManager.getConnection("jdbc:sqlite:$dbPath")
-        connection.createStatement().use {
-            it.execute(
+        // Create new table (start clean)
+        connection.createStatement().use { stmt ->
+            stmt.execute(
                 """
                 CREATE TABLE IF NOT EXISTS scores (
                     model TEXT NOT NULL,
                     label TEXT NOT NULL,
+                    text_hash TEXT NOT NULL,
                     text TEXT NOT NULL,
                     score REAL NOT NULL,
-                    PRIMARY KEY (model, label, text)
+                    PRIMARY KEY (model, label, text_hash)
                 )
                 """.trimIndent()
             )
         }
+    }
+
+    // Normalize text to NFC to avoid misses from different Unicode normalization forms
+    private fun normalize(s: String): String = Normalizer.normalize(s, Normalizer.Form.NFC)
+
+    // SHA-256 hex
+    private fun sha256Hex(s: String): String {
+        val md = MessageDigest.getInstance("SHA-256")
+        val bytes = md.digest(s.toByteArray(StandardCharsets.UTF_8))
+        return bytes.joinToString("") { "%02x".format(it) }
     }
 
     override fun scoreBatch(texts: List<String>, label: String): List<Float> {
@@ -49,34 +65,60 @@ class CachingZeroShotClassifier(
         if (texts.isEmpty()) return emptyMap()
 
         val distinctTexts = texts.distinct()
-        val placeholders = distinctTexts.joinToString(",") { "?" }
-        val sql = "SELECT text, score FROM scores WHERE model = ? AND label = ? AND text IN ($placeholders)"
-        connection.prepareStatement(sql).use { stmt ->
-            stmt.setString(1, modelKey)
-            stmt.setString(2, label)
-            distinctTexts.forEachIndexed { i, text -> stmt.setString(i + 3, text) }
-            stmt.executeQuery().use { rs ->
-                val result = mutableMapOf<String, Float>()
-                while (rs.next()) {
-                    result[rs.getString("text")] = rs.getFloat("score")
+
+        // Map original text -> normalized -> hash
+        val normalizedByText = distinctTexts.associateWith { normalize(it) }
+        val hashByText = normalizedByText.mapValues { sha256Hex(it.value) }
+
+        // Chunk hashes to avoid hitting SQLite's parameter limit. Use configured chunkSize.
+        val maxPerChunk = chunkSize
+
+        val allHashes = hashByText.values.distinct()
+        val hashToScore = mutableMapOf<String, Float>()
+
+        var i = 0
+        while (i < allHashes.size) {
+            val chunk = allHashes.subList(i, minOf(i + maxPerChunk, allHashes.size))
+            val placeholders = chunk.joinToString(separator = ",") { "?" }
+            val sql = "SELECT text_hash, score FROM scores WHERE model = ? AND label = ? AND text_hash IN ($placeholders)"
+            connection.prepareStatement(sql).use { stmt ->
+                stmt.setString(1, modelKey)
+                stmt.setString(2, label)
+                chunk.forEachIndexed { j, h -> stmt.setString(j + 3, h) }
+                stmt.executeQuery().use { rs ->
+                    while (rs.next()) {
+                        hashToScore[rs.getString("text_hash")] = rs.getFloat("score")
+                    }
                 }
-                return result
+            }
+            i += chunk.size
+        }
+
+        val result = mutableMapOf<String, Float>()
+        for (t in distinctTexts) {
+            val h = hashByText[t]!!
+            if (hashToScore.containsKey(h)) {
+                result[t] = hashToScore[h]!!
             }
         }
+        return result
     }
 
     private fun putAll(scores: Map<String, Float>, label: String) {
         if (scores.isEmpty()) return
 
-        val sql = "INSERT OR REPLACE INTO scores (model, label, text, score) VALUES (?, ?, ?, ?)"
+        val sql = "INSERT OR REPLACE INTO scores (model, label, text_hash, text, score) VALUES (?, ?, ?, ?, ?)"
         connection.autoCommit = false
         try {
             connection.prepareStatement(sql).use { stmt ->
                 for ((text, score) in scores) {
+                    val normalized = normalize(text)
+                    val hash = sha256Hex(normalized)
                     stmt.setString(1, modelKey)
                     stmt.setString(2, label)
-                    stmt.setString(3, text)
-                    stmt.setFloat(4, score)
+                    stmt.setString(3, hash)
+                    stmt.setString(4, text)
+                    stmt.setFloat(5, score)
                     stmt.addBatch()
                 }
                 stmt.executeBatch()

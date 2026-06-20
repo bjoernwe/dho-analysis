@@ -22,9 +22,11 @@ fun main() {
 
     CachingZeroShotClassifier(delegate, Path("cache/scores.db"), modelName).use { model ->
         for (label in labels) {
-            val scores = model.scoreBatch(sentences, label)
-            for ((sentence, score) in sentences.zip(scores)) {
-                println("%-80s %-12s %.3f".format(sentence, label, score))
+            for (batch in sentences.chunked(1000)) {
+                val scores = model.scoreBatch(batch, label)
+                for ((sentence, score) in batch.zip(scores)) {
+                    println("%-80s %-12s %.3f".format(sentence, label, score))
+                }
             }
         }
     }

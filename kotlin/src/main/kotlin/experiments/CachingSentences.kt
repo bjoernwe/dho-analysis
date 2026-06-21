@@ -9,7 +9,6 @@ const val BATCH_SIZE_TOKEN_BUDGET = 45_000
 fun main() {
 
     val sentences = readSentences()
-    val labels = listOf("positive", "negative", "neutral")
 
     defaultModel.use { model ->
         ProgressBar("Scoring", (labels.size * sentences.size).toLong()).use { progressBar ->

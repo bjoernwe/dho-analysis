@@ -23,6 +23,11 @@ class CachingZeroShotClassifier(
     init {
         dbPath.createParentDirectories()
         connection = DriverManager.getConnection("jdbc:sqlite:$dbPath")
+        // WAL + NORMAL sync speed up writes (insertScores) without risking corruption
+        connection.createStatement().use { stmt ->
+            stmt.execute("PRAGMA journal_mode=WAL")
+            stmt.execute("PRAGMA synchronous=NORMAL")
+        }
         // Create new table (start clean)
         connection.createStatement().use { stmt ->
             stmt.execute(

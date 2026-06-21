@@ -21,7 +21,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("examples.ClassificationKt")
 }
 
 kotlin {

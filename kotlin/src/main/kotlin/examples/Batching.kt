@@ -1,8 +1,8 @@
-import cache.ScoreCache
-import cache.scoreBatchCached
+package examples
+
 import kotlin.io.path.Path
 import kotlin.time.measureTime
-import models.ZeroShotClassifier
+import models.OnnxZeroShotClassifier
 
 fun main() {
     val texts = listOf(
@@ -21,25 +21,12 @@ fun main() {
 
     val modelName = "ModernBERT-large-zeroshot-v2.0"
 
-    val cache = ScoreCache(
-        dbPath = Path("cache/scores.db"),
-        modelKey = modelName,
-    )
-
-    ZeroShotClassifier(
+    OnnxZeroShotClassifier(
         modelDir = Path("models/MoritzLaurer").resolve(modelName),
         modelFile = "model_fp16.onnx"
     ).use { model ->
         // Warm up so session/provider init isn't counted in the timings below.
         model.score(texts[0], labels[0])
-
-        for (label in labels) {
-            val scores = model.scoreBatch(texts, label)
-            for ((text, score) in texts.zip(scores)) {
-                println("%-50s %-12s %.3f".format(text, label, score))
-            }
-        }
-        println()
 
         val sequentialElapsed = measureTime {
             repeat(rounds) {

@@ -6,7 +6,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.inputStream
 
-class OpenNlpSentenceSplitter(modelPath: Path = Path("models/OpenNLP/opennlp-en-ud-ewt-sentence-1.3-2.5.4.bin")) : SentenceSplitter {
+class OpenNlpSentenceSplitter(modelPath: Path = OPENNLP_MODEL_PATH) : SentenceSplitter {
 
     private val detector = SentenceDetectorME(modelPath.inputStream().use { SentenceModel(it) })
 

@@ -4,11 +4,12 @@ import data.readSentences
 import me.tongfei.progressbar.ProgressBar
 import models.defaultModel
 
-const val BATCH_SIZE_TOKEN_BUDGET = 45_000
+const val BATCH_SIZE_TOKEN_BUDGET = 47_500
 
 fun main() {
 
     val sentences = readSentences()
+    println("Scoring ${sentences.size} sentences...")
 
     defaultModel.use { model ->
         ProgressBar("Scoring", (labels.size * sentences.size).toLong()).use { progressBar ->

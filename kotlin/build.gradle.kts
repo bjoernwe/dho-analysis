@@ -18,6 +18,17 @@ dependencies {
     implementation("com.microsoft.onnxruntime:onnxruntime_gpu:1.22.0")
     implementation("org.jetbrains.kotlinx:dataframe:1.0.0-Beta5")
     implementation("org.xerial:sqlite-jdbc:3.46.1.3")
+    implementation("org.apache.opennlp:opennlp-tools:2.5.9")
+    implementation("me.tongfei:progressbar:0.10.1")
+}
+
+// Add test dependencies
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 application {

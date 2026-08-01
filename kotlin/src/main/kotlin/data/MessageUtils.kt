@@ -18,7 +18,12 @@ fun readMessages(path: String, splitter: SentenceSplitter = defaultSplitter): Da
     val rawMessages = readRawMessages(path)
     val threadAuthors = rawMessages.filter { it.isFirstInThread }.map { it.threadId to it.author }.toMap()
     val json = readLinesAsJsonArray(path)
-    val messages = DataFrame.readJsonStr(json).convertTo<Message> { fill { threadAuthor }.with { threadAuthors[threadId] ?: "n/a" }; fill { sentences }.with { splitter.split(msg ?: "") } }
+    val messages = DataFrame.readJsonStr(json).convertTo<Message> {
+        fill { threadAuthor }.with { threadAuthors[threadId] ?: "n/a" }
+        fill { sentences }.with {
+            splitter.split(msg ?: "").map { sentence -> Sentence(msgId, date, sentence) }
+        }
+    }
     return messages
 }
 

@@ -6,7 +6,7 @@ import models.defaultModel
 
 fun main() {
 
-    val sentences = readRawSentences()
+    val sentences = readRawSentences().sortedBy { it.length }
     println("Scoring ${sentences.size} sentences...")
 
     val batches = createBatches(sentences)

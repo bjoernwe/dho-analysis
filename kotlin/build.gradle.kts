@@ -33,7 +33,7 @@ tasks.test {
 }
 
 application {
-    mainClass.set("examples.ClassificationKt")
+    mainClass.set("experiments.SentencePcaKt")
 }
 
 kotlin {

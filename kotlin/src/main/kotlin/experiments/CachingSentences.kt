@@ -1,12 +1,12 @@
 package experiments
 
-import data.readSentences
+import data.readRawSentences
 import me.tongfei.progressbar.ProgressBar
 import models.defaultModel
 
 fun main() {
 
-    val sentences = readSentences()
+    val sentences = readRawSentences()
     println("Scoring ${sentences.size} sentences...")
 
     val batches = createBatches(sentences)

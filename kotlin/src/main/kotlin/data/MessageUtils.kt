@@ -11,12 +11,6 @@ import models.SentenceSplitter
 import models.defaultSplitter
 import java.io.File
 
-fun readSentences(): List<String> {
-    val messages = readMessages()
-    val sentences = messages.sentences.toList().flatten().sortedBy { it.length }
-    return sentences
-}
-
 // Convenience overload that constructs/uses the shared default splitter.
 fun readMessages(path: String = "data/messages.jsonl"): DataFrame<Message> = readMessages(path, defaultSplitter)
 

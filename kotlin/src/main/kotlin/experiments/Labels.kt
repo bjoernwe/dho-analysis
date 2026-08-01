@@ -21,7 +21,7 @@ val labels = listOf(
     "apprehensive", "anxious",
     "confident", "faithful", "hopeful", //surprised", "sentimental", "disappointed",
     //"jealous", "furious", "lonely", "angry", "ashamed", "terrified", "caring", "afraid", "disgusted", "proud",
-    //"anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed", "grateful",
+    //"anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed", "grateful",*/
 
     // time scales
     "phenomena that change in less than a second", "phenomena that change over seconds", "phenomena that change over minutes",

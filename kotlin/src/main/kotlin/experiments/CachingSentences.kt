@@ -4,7 +4,7 @@ import data.readSentences
 import me.tongfei.progressbar.ProgressBar
 import models.defaultModel
 
-const val BATCH_SIZE_TOKEN_BUDGET = 47_500
+const val BATCH_SIZE_TOKEN_BUDGET = 47_000
 
 fun main() {
 

@@ -11,26 +11,16 @@ import models.SentenceSplitter
 import models.defaultSplitter
 import java.io.File
 
-// Convenience overload that constructs/uses the shared default splitter.
-fun readMessages(path: String = "data/messages.jsonl"): DataFrame<Message> = readMessages(path, defaultSplitter)
-
-fun readMessages(path: String, splitter: SentenceSplitter = defaultSplitter): DataFrame<Message> {
-    val rawMessages = readRawMessages(path)
-    val threadAuthors = rawMessages.filter { it.isFirstInThread }.map { it.threadId to it.author }.toMap()
+fun readMessages(path: String = "data/messages.jsonl", splitter: SentenceSplitter = defaultSplitter): DataFrame<Message> {
     val json = readLinesAsJsonArray(path)
-    val messages = DataFrame.readJsonStr(json).convertTo<Message> {
+    val rawMessages = DataFrame.readJsonStr(json).convertTo<RawMessage>()
+    val threadAuthors = rawMessages.filter { it.isFirstInThread }.map { it.threadId to it.author }.toMap()
+    return DataFrame.readJsonStr(json).convertTo<Message> {
         fill { threadAuthor }.with { threadAuthors[threadId] ?: "n/a" }
-        fill { isOc }.with { it.threadAuthor == it.author }
         fill { sentences }.with {
             splitter.split(msg ?: "").map { sentence -> Sentence(msgId, date, sentence) }
         }
     }
-    return messages
-}
-
-private fun readRawMessages(path: String): DataFrame<RawMessage> {
-    val json = readLinesAsJsonArray(path)
-    return DataFrame.readJsonStr(json).convertTo<RawMessage>()
 }
 
 private fun readLinesAsJsonArray(path: String): String {
@@ -47,6 +37,6 @@ fun DataFrame<Message>.filterByAuthor(author: String = "Linda ”Polly Ester” 
     return this.filter { it.author == author }
 }
 
-fun DataFrame<Message>.filterByOc(): DataFrame<Message> {
-    return this.filter { it.isOc }
+fun DataFrame<Message>.filterByThreadAuthor(): DataFrame<Message> {
+    return this.filter { it.threadAuthor == it.author }
 }

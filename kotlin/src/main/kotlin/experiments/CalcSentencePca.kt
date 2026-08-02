@@ -3,7 +3,7 @@ package experiments
 import data.Sentence
 import data.filterByAuthor
 import data.filterByCategory
-import data.filterByOc
+import data.filterByThreadAuthor
 import data.getSentences
 import data.readMessages
 import data.sortByDescendingLength
@@ -25,13 +25,12 @@ fun main() {
     val sentenceRefs = readMessages()
         .filterByCategory("PracticeLogs")
         .filterByAuthor("Linda ”Polly Ester” Ö")
-        .filterByOc()
+        .filterByThreadAuthor()
         .getSentences()
-        .sortByDescendingLength()
 
     // Dedupe by text: identical sentences would otherwise collide in rowIndexByText and pay for
     // redundant model inference on every repeat.
-    val sentences = sentenceRefs.map { it.sentence }.distinct().sortedBy { it.length }
+    val sentences = sentenceRefs.map { it.sentence }.distinct()
     val rowIndexByText = sentences.withIndex().associate { (i, s) -> s to i }
 
     val x = buildScoreMatrix(sentences, rowIndexByText)

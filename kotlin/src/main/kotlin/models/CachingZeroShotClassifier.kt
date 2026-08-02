@@ -6,6 +6,7 @@ import java.sql.DriverManager
 import java.security.MessageDigest
 import java.text.Normalizer
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.iterator
 import kotlin.io.path.createParentDirectories
 
@@ -57,11 +58,14 @@ class CachingZeroShotClassifier(
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
+    // Hash of a given text is invariant across labels/calls, so memoize it for the lifetime
+    // of this classifier instance instead of re-normalizing + re-hashing on every call.
+    private val hashCache = ConcurrentHashMap<String, String>()
+
     // Compute normalized form and SHA-256 hash for a list of texts
     private fun computeHashes(distinctTexts: List<String>): Map<String, String> {
         return distinctTexts.associateWith { text ->
-            val normalized = normalize(text)
-            sha256Hex(normalized)
+            hashCache.getOrPut(text) { sha256Hex(normalize(text)) }
         }
     }
 
@@ -70,9 +74,7 @@ class CachingZeroShotClassifier(
     private fun queryHashesInChunks(hashes: List<String>, label: String): Map<String, Float> {
         if (hashes.isEmpty()) return emptyMap()
         val hashToScore = mutableMapOf<String, Float>()
-        var i = 0
-        while (i < hashes.size) {
-            val chunk = hashes.subList(i, minOf(i + chunkSize, hashes.size))
+        for (chunk in hashes.chunked(chunkSize)) {
             val placeholders = chunk.joinToString(separator = ",") { "?" }
             val sql = "SELECT text_hash, score FROM scores WHERE model = ? AND label = ? AND text_hash IN ($placeholders)"
             connection.prepareStatement(sql).use { stmt ->
@@ -85,7 +87,6 @@ class CachingZeroShotClassifier(
                     }
                 }
             }
-            i += chunk.size
         }
         return hashToScore
     }
@@ -94,16 +95,15 @@ class CachingZeroShotClassifier(
     @Synchronized
     private fun insertScores(scores: Map<String, Float>, label: String) {
         if (scores.isEmpty()) return
+        val hashByText = computeHashes(scores.keys.toList())
         val sql = "INSERT OR REPLACE INTO scores (model, label, text_hash, text, score) VALUES (?, ?, ?, ?, ?)"
         connection.autoCommit = false
         try {
             connection.prepareStatement(sql).use { stmt ->
                 for ((text, score) in scores) {
-                    val normalized = normalize(text)
-                    val hash = sha256Hex(normalized)
                     stmt.setString(1, modelKey)
                     stmt.setString(2, label)
-                    stmt.setString(3, hash)
+                    stmt.setString(3, hashByText[text]!!)
                     stmt.setString(4, text)
                     stmt.setFloat(5, score)
                     stmt.addBatch()
@@ -144,8 +144,6 @@ class CachingZeroShotClassifier(
         }
         return result
     }
-
-    // putAll removed; use insertScores directly
 
     override fun close() {
         delegate.close()

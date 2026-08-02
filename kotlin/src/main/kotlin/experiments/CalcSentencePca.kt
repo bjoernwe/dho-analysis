@@ -18,8 +18,8 @@ import kotlin.io.path.createParentDirectories
 import kotlin.math.abs
 
 const val N_COMPONENTS = 5
-val featuresPath = Path("cache/sentence_features.csv")
-val loadingsPath = Path("cache/pca_loadings.csv")
+val featuresPath = Path("data/sentence_features.csv")
+val loadingsPath = Path("data/sentence_pca_loadings.csv")
 
 fun main() {
     val sentenceRefs = readMessages()

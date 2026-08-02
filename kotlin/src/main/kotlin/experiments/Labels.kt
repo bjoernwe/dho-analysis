@@ -3,6 +3,7 @@ package experiments
 val labels = listOf(
     "turtles",  // sanity check
 
+    /*
     "positive", "negative", "neutral",
     "good mood", "bad mood",
     "uncertainty", //"certainty",
@@ -21,7 +22,8 @@ val labels = listOf(
     "apprehensive", "anxious",
     "confident", "faithful", "hopeful", //surprised", "sentimental", "disappointed",
     //"jealous", "furious", "lonely", "angry", "ashamed", "terrified", "caring", "afraid", "disgusted", "proud",
-    //"anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed", "grateful",*/
+    //"anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed", "grateful",
+    */
 
     // time scales
     "phenomena that change in less than a second", "phenomena that change over seconds", "phenomena that change over minutes",
@@ -30,6 +32,7 @@ val labels = listOf(
     "stable for less than a second", "stable for seconds", "stable for minutes", "stable for hours", "stable for days",
     "stable for weeks", "stable for months", "stable for years",
 
+    /*
     // misc
     //"fire", "yoga", "jhana",
     "body", //"mind",
@@ -54,4 +57,5 @@ val labels = listOf(
     "weak sense of self", //"strong sense of self",
     "dualities", "polarities", "opposites",
     "equanimity", "equanimity wrt negative", "equanimity wrt opposites",
+     */
 )

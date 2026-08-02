@@ -4,27 +4,17 @@ import data.Sentence
 import data.readSentences
 import me.tongfei.progressbar.ProgressBar
 import models.defaultModel
-import org.jetbrains.kotlinx.dataframe.api.toDataFrame
+import org.jetbrains.kotlinx.dataframe.api.dataFrameOf
+import org.jetbrains.kotlinx.dataframe.api.toColumn
 import org.jetbrains.kotlinx.dataframe.io.writeCsv
 import smile.feature.extraction.PCA
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.math.abs
 
-const val N_COMPONENTS = 3
+const val N_COMPONENTS = 5
 val featuresPath = Path("cache/sentence_features.csv")
 val loadingsPath = Path("cache/pca_loadings.csv")
-
-data class SentenceFeatures(
-    val msgId: Long,
-    val date: String,
-    val sentence: String,
-    val pc1: Double,
-    val pc2: Double,
-    val pc3: Double,
-)
-
-data class LabelLoadings(val label: String, val pc1: Double, val pc2: Double, val pc3: Double)
 
 fun main() {
     val sentenceRefs = readSentences().take(10_000)
@@ -78,12 +68,14 @@ private fun fixComponentSigns(loadings: Array<DoubleArray>, projected: Array<Dou
     }
 }
 
+private fun buildPcColumns(componentValues: (Int) -> List<Double>) =
+    (0 until N_COMPONENTS).map { j -> componentValues(j).toColumn("pc${j + 1}") }
+
 private fun writeLoadings(loadings: Array<DoubleArray>) {
-    val labelLoadings = labels.mapIndexed { i, label ->
-        LabelLoadings(label, loadings[0][i], loadings[1][i], loadings[2][i])
-    }
+    val labelColumn = labels.toColumn("label")
+    val pcColumns = buildPcColumns { j -> loadings[j].toList() }
     loadingsPath.createParentDirectories()
-    labelLoadings.toDataFrame().writeCsv(loadingsPath.toString())
+    dataFrameOf(listOf(labelColumn) + pcColumns).writeCsv(loadingsPath.toString())
 }
 
 private fun writeFeatures(
@@ -91,10 +83,13 @@ private fun writeFeatures(
     rowIndexByText: Map<String, Int>,
     projected: Array<DoubleArray>,
 ) {
-    val sentenceFeatures = sentenceRefs.map { ref ->
-        val row = projected[rowIndexByText[ref.sentence]!!]
-        SentenceFeatures(ref.msgId, ref.date, ref.sentence, row[0], row[1], row[2])
-    }
+    val rows = sentenceRefs.map { ref -> projected[rowIndexByText[ref.sentence]!!] }
+    val idColumns = listOf(
+        sentenceRefs.map { it.msgId }.toColumn("msgId"),
+        sentenceRefs.map { it.date }.toColumn("date"),
+        sentenceRefs.map { it.sentence }.toColumn("sentence"),
+    )
+    val pcColumns = buildPcColumns { j -> rows.map { it[j] } }
     featuresPath.createParentDirectories()
-    sentenceFeatures.toDataFrame().writeCsv(featuresPath.toString())
+    dataFrameOf(idColumns + pcColumns).writeCsv(featuresPath.toString())
 }

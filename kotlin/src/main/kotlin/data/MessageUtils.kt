@@ -20,6 +20,7 @@ fun readMessages(path: String, splitter: SentenceSplitter = defaultSplitter): Da
     val json = readLinesAsJsonArray(path)
     val messages = DataFrame.readJsonStr(json).convertTo<Message> {
         fill { threadAuthor }.with { threadAuthors[threadId] ?: "n/a" }
+        fill { isOc }.with { it.threadAuthor == it.author }
         fill { sentences }.with {
             splitter.split(msg ?: "").map { sentence -> Sentence(msgId, date, sentence) }
         }
@@ -36,4 +37,16 @@ private fun readLinesAsJsonArray(path: String): String {
     return File(path).useLines { lines ->
         lines.filter { it.isNotBlank() }.joinToString(",", prefix = "[", postfix = "]")
     }
+}
+
+fun DataFrame<Message>.filterByCategory(category: String = "PracticeLogs"): DataFrame<Message> {
+    return this.filter { it.category == category }
+}
+
+fun DataFrame<Message>.filterByAuthor(author: String = "Linda ”Polly Ester” Ö"): DataFrame<Message> {
+    return this.filter { it.author == author }
+}
+
+fun DataFrame<Message>.filterByOc(): DataFrame<Message> {
+    return this.filter { it.isOc }
 }

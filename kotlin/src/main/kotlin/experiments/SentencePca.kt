@@ -1,7 +1,12 @@
 package experiments
 
 import data.Sentence
-import data.readSentences
+import data.filterByAuthor
+import data.filterByCategory
+import data.filterByOc
+import data.getSentences
+import data.readMessages
+import data.sortByDescendingLength
 import me.tongfei.progressbar.ProgressBar
 import models.defaultModel
 import org.jetbrains.kotlinx.dataframe.api.dataFrameOf
@@ -17,7 +22,12 @@ val featuresPath = Path("cache/sentence_features.csv")
 val loadingsPath = Path("cache/pca_loadings.csv")
 
 fun main() {
-    val sentenceRefs = readSentences().take(10_000)
+    val sentenceRefs = readMessages()
+        .filterByCategory("PracticeLogs")
+        .filterByAuthor("Linda ”Polly Ester” Ö")
+        .filterByOc()
+        .getSentences()
+        .sortByDescendingLength()
 
     // Dedupe by text: identical sentences would otherwise collide in rowIndexByText and pay for
     // redundant model inference on every repeat.

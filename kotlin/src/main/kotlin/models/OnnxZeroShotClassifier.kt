@@ -11,7 +11,11 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.math.exp
 
-class OnnxZeroShotClassifier(modelDir: Path, modelFile: String = "model.onnx") : ZeroShotClassifier {
+class OnnxZeroShotClassifier(
+    modelDir: Path,
+    modelFile: String = "model.onnx",
+    override val batchSizeTokenBudget: Int = 47_000,
+) : ZeroShotClassifier {
 
     // Padding is required so batchEncode can stack pairs of unequal length into one rectangular tensor.
     private val tokenizer = HuggingFaceTokenizer.newInstance(modelDir, mapOf("padding" to "true"))

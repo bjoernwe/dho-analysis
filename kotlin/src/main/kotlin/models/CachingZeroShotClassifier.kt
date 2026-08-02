@@ -18,6 +18,8 @@ class CachingZeroShotClassifier(
     private val chunkSize: Int = 997,
 ) : ZeroShotClassifier {
 
+    override val batchSizeTokenBudget: Int get() = delegate.batchSizeTokenBudget
+
     private val connection: Connection
 
     init {

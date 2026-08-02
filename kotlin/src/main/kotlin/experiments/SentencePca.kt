@@ -49,16 +49,12 @@ fun main() {
 
 private fun buildScoreMatrix(sentences: List<String>, rowIndexByText: Map<String, Int>): Array<DoubleArray> {
     val x = Array(sentences.size) { DoubleArray(labels.size) }
-    val batches = createBatches(sentences)
     defaultModel.use { model ->
         ProgressBar("Scoring", labels.size.toLong() * sentences.size).use { progressBar ->
             for ((labelIdx, label) in labels.withIndex()) {
-                for (batch in batches) {
-                    val scores = model.scoreBatch(batch, label)
-                    for ((offset, sentence) in batch.withIndex()) {
-                        x[rowIndexByText[sentence]!!][labelIdx] = scores[offset].toDouble()
-                    }
-                    progressBar.stepBy(batch.size.toLong())
+                val scores = model.score(sentences, label) { n -> progressBar.stepBy(n.toLong()) }
+                for ((offset, sentence) in sentences.withIndex()) {
+                    x[rowIndexByText[sentence]!!][labelIdx] = scores[offset].toDouble()
                 }
             }
         }

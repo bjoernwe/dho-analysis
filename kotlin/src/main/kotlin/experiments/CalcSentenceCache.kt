@@ -1,8 +1,5 @@
 package experiments
 
-import data.filterByAuthor
-import data.filterByCategory
-import data.filterByThreadAuthor
 import data.getSentences
 import data.rawStrings
 import data.readMessages
@@ -12,9 +9,7 @@ import models.defaultModel
 fun main() {
 
     val sentences = readMessages()
-        .filterByCategory("PracticeLogs")
-        .filterByAuthor("Linda ”Polly Ester” Ö")
-        .filterByThreadAuthor()
+        .filterByLindasPracticeLogs()
         .getSentences()
 
     println("Scoring ${sentences.size} sentences...")

@@ -26,13 +26,13 @@ fun main() {
         modelFile = "model_fp16.onnx"
     ).use { model ->
         // Warm up so session/provider init isn't counted in the timings below.
-        model.score(texts[0], labels[0])
+        model.scoreSingle(texts[0], labels[0])
 
         val sequentialElapsed = measureTime {
             repeat(rounds) {
                 for (text in texts) {
                     for (label in labels) {
-                        model.score(text, label)
+                        model.scoreSingle(text, label)
                     }
                 }
             }

@@ -6,7 +6,6 @@ import data.filterByCategory
 import data.filterByThreadAuthor
 import data.getSentences
 import data.readMessages
-import data.sortByDescendingLength
 import me.tongfei.progressbar.ProgressBar
 import models.defaultModel
 import org.jetbrains.kotlinx.dataframe.api.dataFrameOf
@@ -22,7 +21,7 @@ val featuresPath = Path("data/sentence_features.csv")
 val loadingsPath = Path("data/sentence_pca_loadings.csv")
 
 fun main() {
-    val sentenceRefs = readMessages()
+    val sentences = readMessages()
         .filterByCategory("PracticeLogs")
         .filterByAuthor("Linda ”Polly Ester” Ö")
         .filterByThreadAuthor()
@@ -30,10 +29,10 @@ fun main() {
 
     // Dedupe by text: identical sentences would otherwise collide in rowIndexByText and pay for
     // redundant model inference on every repeat.
-    val sentences = sentenceRefs.map { it.sentence }.distinct()
-    val rowIndexByText = sentences.withIndex().associate { (i, s) -> s to i }
+    val sentenceStrings = sentences.map { it.sentence }.distinct()
+    val rowIndexByText = sentenceStrings.withIndex().associate { (i, s) -> s to i }
 
-    val x = buildScoreMatrix(sentences, rowIndexByText)
+    val x = buildScoreMatrix(sentenceStrings, rowIndexByText)
 
     // No standardization: all features are entailment probabilities on the same [0,1] scale,
     // so raw variance differences across labels are exactly the signal we want PCA to surface.
@@ -43,7 +42,7 @@ fun main() {
     fixComponentSigns(loadings, projected)
 
     writeLoadings(loadings)
-    writeFeatures(sentenceRefs, rowIndexByText, projected)
+    writeFeatures(sentences, rowIndexByText, projected)
 }
 
 private fun buildScoreMatrix(sentences: List<String>, rowIndexByText: Map<String, Int>): Array<DoubleArray> {

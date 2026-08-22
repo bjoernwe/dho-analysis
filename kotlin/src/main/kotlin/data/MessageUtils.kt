@@ -7,19 +7,18 @@ import org.jetbrains.kotlinx.dataframe.api.filter
 import org.jetbrains.kotlinx.dataframe.api.map
 import org.jetbrains.kotlinx.dataframe.api.with
 import org.jetbrains.kotlinx.dataframe.io.readJsonStr
-import models.SentenceSplitter
-import models.defaultSplitter
 import java.io.File
 
-fun readMessages(path: String = "data/messages.jsonl", splitter: SentenceSplitter = defaultSplitter): DataFrame<Message> {
-    val json = readLinesAsJsonArray(path)
-    val rawMessages = DataFrame.readJsonStr(json).convertTo<RawMessage>()
-    val threadAuthors = rawMessages.filter { it.isFirstInThread }.map { it.threadId to it.author }.toMap()
-    return DataFrame.readJsonStr(json).convertTo<Message> {
+fun readMessages(path: String = "data/messages.jsonl"): DataFrame<Message> {
+    // Parsed once and reused: the thread-author lookup and the result frame are the same rows,
+    // and re-parsing the corpus costs a full pass over tens of megabytes of JSON.
+    val parsed = DataFrame.readJsonStr(readLinesAsJsonArray(path))
+    val threadAuthors = parsed.convertTo<RawMessage>()
+        .filter { it.isFirstInThread }
+        .map { it.threadId to it.author }
+        .toMap()
+    return parsed.convertTo<Message> {
         fill { threadAuthor }.with { threadAuthors[threadId] ?: "n/a" }
-        fill { sentences }.with {
-            splitter.split(msg ?: "").map { sentence -> Sentence(msgId, date, sentence) }
-        }
     }
 }
 
@@ -29,11 +28,11 @@ private fun readLinesAsJsonArray(path: String): String {
     }
 }
 
-fun DataFrame<Message>.filterByCategory(category: String = "PracticeLogs"): DataFrame<Message> {
+fun DataFrame<Message>.filterByCategory(category: String): DataFrame<Message> {
     return this.filter { it.category == category }
 }
 
-fun DataFrame<Message>.filterByAuthor(author: String = "Linda ”Polly Ester” Ö"): DataFrame<Message> {
+fun DataFrame<Message>.filterByAuthor(author: String): DataFrame<Message> {
     return this.filter { it.author == author }
 }
 

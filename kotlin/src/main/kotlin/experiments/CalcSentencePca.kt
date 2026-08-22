@@ -1,5 +1,8 @@
 package experiments
 
+import algorithms.calcPca
+import algorithms.writeFeatures
+import algorithms.writeLoadings
 import data.Message
 import data.filterByAuthor
 import data.filterByCategory
@@ -13,7 +16,9 @@ val featuresPath = Path("data/sentence_features.csv")
 val loadingsPath = Path("data/sentence_pca_loadings.csv")
 
 fun DataFrame<Message>.filterByLindasPracticeLogs(): DataFrame<Message> {
-    return this.filterByCategory().filterByAuthor().filterByThreadAuthor()
+    return this.filterByCategory("PracticeLogs")
+        .filterByAuthor("Linda ”Polly Ester” Ö")
+        .filterByThreadAuthor()
 }
 
 fun main() {

@@ -17,7 +17,10 @@ fun main() {
     defaultModel.use { model ->
         for (label in labels) {
             println(label)
-            ProgressBar("Scoring", (sentences.size).toLong()).use { progressBar ->
+            ProgressBar(
+                "Scoring",
+                (sentences.size).toLong()
+            ).use { progressBar ->
                 model.score(sentences.rawStrings(), label) { n -> progressBar.stepBy(n.toLong()) }
             }
         }

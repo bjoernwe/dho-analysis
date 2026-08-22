@@ -7,6 +7,7 @@ import java.nio.file.Files
 class CachingZeroShotClassifierTest {
 
     private class DummyDelegate : ZeroShotClassifier {
+        override val batchSizeTokenBudget = 1000
         var calls = 0
         override fun scoreBatch(texts: List<String>, label: String): List<Float> {
             calls += texts.size

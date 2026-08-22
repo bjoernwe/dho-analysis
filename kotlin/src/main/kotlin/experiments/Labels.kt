@@ -23,6 +23,11 @@ val labels = listOf(
     //"jealous", "furious", "lonely", "angry", "ashamed", "terrified", "caring", "afraid", "disgusted", "proud",
     //"anticipating", "embarrassed", "devastated", "trusting", "sad", "guilty", "nostalgic", "annoyed", "grateful",
 
+    // self
+    "self-referential", "author referring to themselves",
+    "self-reference", "self-reflection", "self-judgment", "self-criticism", "self-compassion", "self-awareness",
+    "self-consciousness", "self-acceptance", "self-esteem", "self-image", "self-perception",
+
     // time scales
     //"phenomena that change in less than a second",
     "phenomena that change over seconds", "phenomena that change over minutes", "phenomena that change over hours",
@@ -34,6 +39,7 @@ val labels = listOf(
     // misc
     //"fire", "yoga", "jhana",
     "body", //"mind",
+    "awareness", "attention", "concentration", "focus",
     "high concentration", "low concentration",
     "sensory", "visual", "somatic", "mental",
     "vague", "abstract", "measurable",

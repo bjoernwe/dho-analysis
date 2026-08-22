@@ -17,7 +17,7 @@ fun main() {
         .getSentences()
         .calcPca()
 
-    val result = pca.calcSfa()
+    val result = pca.calcSfa(maxGapDays = 3.0)
 
     val messages = result.messages
     println("Messages: ${messages.size} (${messages.first().date} -> ${messages.last().date})")

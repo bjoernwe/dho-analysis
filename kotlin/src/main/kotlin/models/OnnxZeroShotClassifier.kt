@@ -14,7 +14,7 @@ import kotlin.math.exp
 class OnnxZeroShotClassifier(
     modelDir: Path,
     modelFile: String = "model.onnx",
-    override val batchSizeTokenBudget: Int = 47_000,
+    override val batchSizeTokenBudget: Int = 46_000,
 ) : ZeroShotClassifier {
 
     // Padding is required so batchEncode can stack pairs of unequal length into one rectangular tensor.

@@ -28,6 +28,10 @@ val labels = listOf(
     "self-reference", "self-reflection", "self-judgment",
     "self-criticism", "self-awareness", "self-acceptance", "self-perception",
 
+    // agency
+    "unable to do sth.", "capable of doing sth.", "easily able to do sth.", "forced to react", "unable to react",
+    "able to react", "choice", "no choice", "things happening on their own",
+
     // time scales
     //"phenomena that change in less than a second",
     "phenomena that change over seconds", //"phenomena that change over minutes", "phenomena that change over hours",

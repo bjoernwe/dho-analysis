@@ -1,0 +1,3 @@
+[submodule "kotlin/sfa-kotlin"]
+	path = kotlin/sfa-kotlin
+	url = git@github.com:bjoernwe/sfa-kotlin.git

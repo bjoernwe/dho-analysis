@@ -4,6 +4,9 @@ import data.Sentence
 import models.ZeroShotClassifier
 import models.defaultModel
 import org.jetbrains.kotlinx.dataframe.AnyFrame
+import sfa.Sfa
+import sfa.fitSfa
+import sfa.pinSigns
 import smile.math.MathEx
 import java.nio.file.Path
 import java.time.Duration
